@@ -67,6 +67,15 @@ export default function StoreDetail({ store, onClose, onDelete }) {
             </h2>
             <p className="text-sm text-gray-500 capitalize">{store.type}</p>
           </div>
+
+          {store.photo_url && (
+            <img
+              src={store.photo_url}
+              alt={store.name}
+              className="w-full h-40 object-cover rounded-xl"
+            />
+          )}
+
           <div className="flex items-center gap-2">
             <button
               onClick={() => onDelete(store.id)}
