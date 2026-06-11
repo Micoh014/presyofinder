@@ -93,7 +93,7 @@ export default function Basket({ onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-[1000]">
+    <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-1000">
       <div className="bg-white w-full max-w-md rounded-t-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-bold text-gray-800">🧺 Basket Finder</h2>

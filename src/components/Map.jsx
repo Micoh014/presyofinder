@@ -153,30 +153,31 @@ export default function Map() {
         ))}
       </MapContainer>
 
-      <button
-        onClick={() => setShowDashboard(true)}
-        className="absolute bottom-8 left-4 z-1000 bg-white text-gray-700 px-5 py-3 rounded-full shadow-lg font-semibold text-sm"
-      >
-        📊 Stats
-      </button>
-
-      <button
-        onClick={() => setShowBasket(true)}
-        className="absolute bottom-8 left-36 z-1000 bg-white text-gray-700 px-5 py-3 rounded-full shadow-lg font-semibold text-sm"
-      >
-        🧺 Basket
-      </button>
-
-      <button
-        onClick={() => {
-          if (!userPosition) return alert("Waiting for your location...");
-          setPinPosition(userPosition);
-          setShowModal(true);
-        }}
-        className="absolute bottom-8 right-4 z-1000 bg-green-500 text-white px-5 py-3 rounded-full shadow-lg font-semibold text-sm"
-      >
-        + Drop Pin
-      </button>
+      {/* Bottom Bar */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-1000 flex gap-3">
+        <button
+          onClick={() => setShowDashboard(true)}
+          className="flex items-center gap-2 bg-white text-gray-700 px-5 py-3 rounded-full shadow-lg font-semibold text-sm border border-gray-100"
+        >
+          📊 Stats
+        </button>
+        <button
+          onClick={() => {
+            if (!userPosition) return alert("Waiting for your location...");
+            setPinPosition(userPosition);
+            setShowModal(true);
+          }}
+          className="flex items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-full shadow-lg font-bold text-sm"
+        >
+          + Drop Pin
+        </button>
+        <button
+          onClick={() => setShowBasket(true)}
+          className="flex items-center gap-2 bg-white text-gray-700 px-5 py-3 rounded-full shadow-lg font-semibold text-sm border border-gray-100"
+        >
+          🧺 Basket
+        </button>
+      </div>
 
       {showModal && pinPosition && (
         <AddStoreModal
