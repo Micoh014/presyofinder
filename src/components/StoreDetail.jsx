@@ -1,16 +1,31 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
+import ReceiptScanner from "./ReceiptScanner";
 
 export default function StoreDetail({ store, onClose, onDelete }) {
   const [items, setItems] = useState([]);
   const [itemName, setItemName] = useState("");
   const [itemPrice, setItemPrice] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
 
   useEffect(() => {
     fetchItems();
   }, [store.id]);
 
+  async function handleReceiptItems(scannedItems) {
+    for (const item of scannedItems) {
+      await supabase.from("items").insert([
+        {
+          store_id: store.id,
+          name: item.name,
+          price: parseFloat(item.price),
+        },
+      ]);
+    }
+    setShowScanner(false);
+    fetchItems();
+  }
   async function fetchItems() {
     const { data } = await supabase
       .from("items")
@@ -115,6 +130,13 @@ export default function StoreDetail({ store, onClose, onDelete }) {
           >
             {loading ? "Saving..." : "Add Item"}
           </button>
+
+          <button
+            onClick={() => setShowScanner(true)}
+            className="w-full border border-green-400 text-green-600 rounded-lg py-2 font-medium"
+          >
+            🧾 Scan Receipt Instead
+          </button>
         </div>
 
         {/* Items List */}
@@ -151,6 +173,12 @@ export default function StoreDetail({ store, onClose, onDelete }) {
               </div>
             </div>
           ))}
+          {showScanner && (
+            <ReceiptScanner
+              onItemsFound={handleReceiptItems}
+              onClose={() => setShowScanner(false)}
+            />
+          )}
         </div>
       </div>
     </div>

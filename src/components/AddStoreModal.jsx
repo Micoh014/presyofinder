@@ -60,7 +60,7 @@ export default function AddStoreModal({ position, onSave, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-[1000]">
+    <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-1000">
       <div className="bg-white w-full max-w-md rounded-t-2xl p-6 space-y-4">
         <h2 className="text-xl font-bold text-gray-800">Add Store</h2>
 
