@@ -14,6 +14,7 @@ import { supabase } from "../lib/supabase";
 import StoreDetail from "./StoreDetail";
 import SearchBar from "./SearchBar";
 import SearchResults from "./SearchResults";
+import Dashboard from "../pages/Dashboard";
 
 function LocationMarker({ onLocationFound }) {
   const map = useMap();
@@ -84,6 +85,7 @@ export default function Map() {
   const [selectedStore, setSelectedStore] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
 
   useEffect(() => {
     fetchStores();
@@ -150,6 +152,13 @@ export default function Map() {
       </MapContainer>
 
       <button
+        onClick={() => setShowDashboard(true)}
+        className="absolute bottom-8 left-4 z-1000 bg-white text-gray-700 px-5 py-3 rounded-full shadow-lg font-semibold text-sm"
+      >
+        📊 Stats
+      </button>
+
+      <button
         onClick={() => {
           if (!userPosition) return alert("Waiting for your location...");
           setPinPosition(userPosition);
@@ -187,6 +196,7 @@ export default function Map() {
           }}
         />
       )}
+      {showDashboard && <Dashboard onClose={() => setShowDashboard(false)} />}
     </div>
   );
 }
