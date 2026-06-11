@@ -15,6 +15,7 @@ import StoreDetail from "./StoreDetail";
 import SearchBar from "./SearchBar";
 import SearchResults from "./SearchResults";
 import Dashboard from "../pages/Dashboard";
+import Basket from "./Basket";
 
 function LocationMarker({ onLocationFound }) {
   const map = useMap();
@@ -86,6 +87,7 @@ export default function Map() {
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
+  const [showBasket, setShowBasket] = useState(false);
 
   useEffect(() => {
     fetchStores();
@@ -159,6 +161,13 @@ export default function Map() {
       </button>
 
       <button
+        onClick={() => setShowBasket(true)}
+        className="absolute bottom-8 left-36 z-1000 bg-white text-gray-700 px-5 py-3 rounded-full shadow-lg font-semibold text-sm"
+      >
+        🧺 Basket
+      </button>
+
+      <button
         onClick={() => {
           if (!userPosition) return alert("Waiting for your location...");
           setPinPosition(userPosition);
@@ -197,6 +206,7 @@ export default function Map() {
         />
       )}
       {showDashboard && <Dashboard onClose={() => setShowDashboard(false)} />}
+      {showBasket && <Basket onClose={() => setShowBasket(false)} />}
     </div>
   );
 }
