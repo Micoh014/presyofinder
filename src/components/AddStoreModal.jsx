@@ -9,6 +9,7 @@ const STORE_TYPES = [
   { value: "supermarket", label: "🛒 Supermarket" },
   { value: "street-vendor", label: "🛵 Street Vendor" },
   { value: "online", label: "📦 Online Seller" },
+  { value: "other", label: "❓ Other" },
 ];
 
 export default function AddStoreModal({ position, onSave, onClose }) {

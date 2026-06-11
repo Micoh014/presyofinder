@@ -63,16 +63,36 @@ function getPinColor(store, searchResults) {
   return "#eab308";
 }
 function createColoredIcon(color) {
-  const hex = color || "#6366f1";
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="42" viewBox="0 0 32 42">
-      <path d="M16 0C7.163 0 0 7.163 0 16c0 10.444 14.028 24.917 15.149 26.076a1.2 1.2 0 0 0 1.702 0C17.972 40.917 32 26.444 32 16 32 7.163 24.837 0 16 0z" fill="${hex}"/>
-      <circle cx="16" cy="16" r="7" fill="white"/>
-    </svg>
-  `;
-  return L.divIcon({
-    className: "",
-    html: svg,
+  const canvas = document.createElement("canvas");
+  canvas.width = 32;
+  canvas.height = 42;
+  const ctx = canvas.getContext("2d");
+
+  // Draw teardrop pin shape
+  ctx.beginPath();
+  ctx.arc(16, 16, 14, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.strokeStyle = "white";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Draw pointer
+  ctx.beginPath();
+  ctx.moveTo(10, 26);
+  ctx.lineTo(16, 42);
+  ctx.lineTo(22, 26);
+  ctx.fillStyle = color;
+  ctx.fill();
+
+  // White circle inside
+  ctx.beginPath();
+  ctx.arc(16, 16, 6, 0, Math.PI * 2);
+  ctx.fillStyle = "white";
+  ctx.fill();
+
+  return L.icon({
+    iconUrl: canvas.toDataURL(),
     iconSize: [32, 42],
     iconAnchor: [16, 42],
     popupAnchor: [0, -42],
@@ -142,13 +162,18 @@ export default function Map() {
 
         {stores.map((store) => (
           <Marker
-            key={store.id}
+            key={`${store.id}-${getPinColor(store, searchResults)}`}
             position={[store.latitude, store.longitude]}
+            icon={createColoredIcon(getPinColor(store, searchResults))}
             eventHandlers={{
               click: () => setSelectedStore(store),
+              mouseover: (e) => e.target.openPopup(),
+              mouseout: (e) => e.target.closePopup(),
             }}
           >
-            <Popup>{store.name}</Popup>
+            <Popup closeButton={false} autoPan={false}>
+              <span className="text-sm font-medium">{store.name}</span>
+            </Popup>
           </Marker>
         ))}
       </MapContainer>
