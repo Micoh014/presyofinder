@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet'
 import { useEffect, useState } from 'react'
 import L from 'leaflet'
 import AddStoreModal from './AddStoreModal'
@@ -32,13 +32,21 @@ function LocationMarker({ onLocationFound }) {
   return null
 }
 
+function MapClickHandler({ onMapClick }) {
+  useMapEvents({
+    click: (e) => onMapClick(e.latlng)
+  })
+  return null
+}
+
 export default function Map() {
   const [userPosition, setUserPosition] = useState(null)
+  const [pinPosition, setPinPosition] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [stores, setStores] = useState([])
   const [selectedStore, setSelectedStore] = useState(null)
   const [searchResults, setSearchResults] = useState([])
-const [searching, setSearching] = useState(false)
+  const [searching, setSearching] = useState(false)
 
   useEffect(() => {
     fetchStores()
@@ -55,15 +63,17 @@ const [searching, setSearching] = useState(false)
     setShowModal(false)
     fetchStores()
   }
-function handleSearchResults(results) {
-  setSearchResults(results)
-  setSearching(true)
-}
 
-function handleSearchClear() {
-  setSearchResults([])
-  setSearching(false)
-}
+  function handleSearchResults(results) {
+    setSearchResults(results)
+    setSearching(true)
+  }
+
+  function handleSearchClear() {
+    setSearchResults([])
+    setSearching(false)
+  }
+
   return (
     <div className="relative w-full h-full">
       <MapContainer
@@ -76,56 +86,61 @@ function handleSearchClear() {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <LocationMarker onLocationFound={setUserPosition} />
+        <MapClickHandler onMapClick={(latlng) => {
+          setPinPosition(latlng)
+          setShowModal(true)
+        }} />
 
         {stores.map(store => (
-  <Marker
-    key={store.id}
-    position={[store.latitude, store.longitude]}
-    eventHandlers={{
-      click: () => setSelectedStore(store)
-    }}
-  >
-    <Popup>{store.name}</Popup>
-  </Marker>
-))}
+          <Marker
+            key={store.id}
+            position={[store.latitude, store.longitude]}
+            eventHandlers={{
+              click: () => setSelectedStore(store)
+            }}
+          >
+            <Popup>{store.name}</Popup>
+          </Marker>
+        ))}
       </MapContainer>
 
-      {/* Drop Pin Button */}
       <button
         onClick={() => {
           if (!userPosition) return alert('Waiting for your location...')
+          setPinPosition(userPosition)
           setShowModal(true)
         }}
-        className="absolute bottom-8 right-4 z-1000 bg-green-500 text-white px-5 py-3 rounded-full shadow-lg font-semibold text-sm"
+        className="absolute bottom-8 right-4 z-[1000] bg-green-500 text-white px-5 py-3 rounded-full shadow-lg font-semibold text-sm"
       >
         + Drop Pin
       </button>
 
-      {showModal && userPosition && (
+      {showModal && pinPosition && (
         <AddStoreModal
-          position={userPosition}
+          position={pinPosition}
           onSave={handleSaveStore}
           onClose={() => setShowModal(false)}
         />
       )}
-            {selectedStore && (
+
+      {selectedStore && (
         <StoreDetail
           store={selectedStore}
           onClose={() => setSelectedStore(null)}
-  />
-  
-)}
-<SearchBar onResults={handleSearchResults} onClear={handleSearchClear} />
+        />
+      )}
 
-{searching && (
-  <SearchResults
-    results={searchResults}
-    onSelectStore={(store) => {
-      setSelectedStore(store)
-      setSearching(false)
-    }}
-  />
-)}
+      <SearchBar onResults={handleSearchResults} onClear={handleSearchClear} />
+
+      {searching && (
+        <SearchResults
+          results={searchResults}
+          onSelectStore={(store) => {
+            setSelectedStore(store)
+            setSearching(false)
+          }}
+        />
+      )}
     </div>
   )
 }
