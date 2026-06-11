@@ -4,6 +4,8 @@ import L from 'leaflet'
 import AddStoreModal from './AddStoreModal'
 import { supabase } from '../lib/supabase'
 import StoreDetail from './StoreDetail'
+import SearchBar from './SearchBar'
+import SearchResults from './SearchResults'
 
 function LocationMarker({ onLocationFound }) {
   const map = useMap()
@@ -35,7 +37,8 @@ export default function Map() {
   const [showModal, setShowModal] = useState(false)
   const [stores, setStores] = useState([])
   const [selectedStore, setSelectedStore] = useState(null)
-  
+  const [searchResults, setSearchResults] = useState([])
+const [searching, setSearching] = useState(false)
 
   useEffect(() => {
     fetchStores()
@@ -52,7 +55,15 @@ export default function Map() {
     setShowModal(false)
     fetchStores()
   }
+function handleSearchResults(results) {
+  setSearchResults(results)
+  setSearching(true)
+}
 
+function handleSearchClear() {
+  setSearchResults([])
+  setSearching(false)
+}
   return (
     <div className="relative w-full h-full">
       <MapContainer
@@ -101,6 +112,18 @@ export default function Map() {
         <StoreDetail
           store={selectedStore}
           onClose={() => setSelectedStore(null)}
+  />
+  
+)}
+<SearchBar onResults={handleSearchResults} onClear={handleSearchClear} />
+
+{searching && (
+  <SearchResults
+    results={searchResults}
+    onSelectStore={(store) => {
+      setSelectedStore(store)
+      setSearching(false)
+    }}
   />
 )}
     </div>
