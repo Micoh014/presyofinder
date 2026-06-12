@@ -128,7 +128,7 @@ export default function StoreDetail({ store, onClose, onDelete }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-1000">
-      <div className="bg-white w-full max-w-md rounded-t-3xl max-h-[85vh] overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 w-full max-w-md rounded-t-3xl max-h-[85vh] overflow-y-auto">
         {/* Store Photo */}
         {store.photo_url && (
           <div className="relative">
@@ -140,10 +140,12 @@ export default function StoreDetail({ store, onClose, onDelete }) {
             <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent rounded-t-3xl" />
             <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
               <div>
-                <h2 className="text-xl font-bold text-white">
+                <h2 className="text-xl font-bold text-gray-800 dark:text-white">
                   {STORE_ICONS[store.type] || "📍"} {store.name}
                 </h2>
-                <p className="text-sm text-white/70 capitalize">{store.type}</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500capitalize">
+                  {store.type}
+                </p>
               </div>
               <div className="flex gap-2">
                 <button
@@ -169,12 +171,12 @@ export default function StoreDetail({ store, onClose, onDelete }) {
             {editing ? (
               <div className="space-y-3">
                 <input
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                  className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                 />
                 <select
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                  className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                   value={editType}
                   onChange={(e) => setEditType(e.target.value)}
                 >
@@ -187,7 +189,7 @@ export default function StoreDetail({ store, onClose, onDelete }) {
                 <div className="flex gap-2">
                   <button
                     onClick={() => setEditing(false)}
-                    className="flex-1 border border-gray-200 text-gray-600 rounded-xl py-2 text-sm font-medium"
+                    className="flex-1 border border-gray-200 dark:border-gray-600 text-gray-600 rounded-xl py-2 text-sm font-medium"
                   >
                     Cancel
                   </button>
@@ -212,19 +214,19 @@ export default function StoreDetail({ store, onClose, onDelete }) {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setEditing(true)}
-                    className="text-blue-400 text-sm font-medium"
+                    className="text-blue-400 dark:text-blue-300 text-sm font-medium"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => onDelete(store.id)}
-                    className="text-red-400 text-sm font-medium"
+                    className="text-red-400 dark:text-red-300 text-sm font-medium"
                   >
                     Delete
                   </button>
                   <button
                     onClick={onClose}
-                    className="text-gray-400 text-2xl leading-none"
+                    className="text-gray-400 dark:text-gray-500 text-2xl leading-none"
                   >
                     &times;
                   </button>
@@ -236,21 +238,25 @@ export default function StoreDetail({ store, onClose, onDelete }) {
 
         <div className="px-6 pb-6 space-y-4 pt-4">
           {/* Add Item Form */}
-          <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
-            <h3 className="font-semibold text-gray-700">Add Item</h3>
+          <div className="bg-gray-50 dark:bg-gray-700 rounded-2xl p-4 space-y-3">
+            <h3 className="font-semibold text-gray-700 dark:text-gray-200">
+              Add Item
+            </h3>
             <input
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
+              className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl px-4 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
               placeholder="Item name (e.g. Rice 1kg)"
               value={itemName}
               onChange={(e) => setItemName(e.target.value)}
             />
+
             <input
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
+              className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl px-4 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
               placeholder="Price (e.g. 52.00)"
               type="number"
               value={itemPrice}
               onChange={(e) => setItemPrice(e.target.value)}
             />
+
             <button
               onClick={handleAddItem}
               disabled={loading}
@@ -260,7 +266,7 @@ export default function StoreDetail({ store, onClose, onDelete }) {
             </button>
             <button
               onClick={() => setShowScanner(true)}
-              className="w-full border border-green-400 text-green-600 rounded-xl py-2.5 font-semibold text-sm"
+              className="w-full border border-green-400 dark:border-green-500 text-green-600 dark:text-green-400 rounded-xl py-2.5 font-semibold text-sm"
             >
               🧾 Scan Receipt Instead
             </button>
@@ -268,22 +274,25 @@ export default function StoreDetail({ store, onClose, onDelete }) {
 
           {/* Items List */}
           <div className="space-y-2">
-            <h3 className="font-semibold text-gray-700">
+            <h3 className="font-semibold text-gray-700 dark:text-gray-200">
               Items{" "}
-              <span className="text-gray-400 font-normal">
+              <span className="text-gray-400 dark:text-gray-500 font-normal">
                 ({items.length})
               </span>
             </h3>
 
             {items.length === 0 && (
-              <div className="text-center py-8 text-gray-400">
+              <div className="text-center py-8 text-gray-400 dark:text-gray-500">
                 <p className="text-3xl mb-2">🛒</p>
                 <p className="text-sm">No items yet. Add one above.</p>
               </div>
             )}
 
             {items.map((item) => (
-              <div key={item.id} className="bg-gray-50 rounded-xl px-4 py-3">
+              <div
+                key={item.id}
+                className="bg-gray-50 dark:bg-gray-700 rounded-xl px-4 py-3"
+              >
                 {editingItem === item.id ? (
                   <div className="space-y-2">
                     <input
@@ -293,7 +302,7 @@ export default function StoreDetail({ store, onClose, onDelete }) {
                       placeholder="Item name"
                     />
                     <input
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                      className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                       value={editItemPrice}
                       onChange={(e) => setEditItemPrice(e.target.value)}
                       placeholder="Price"
@@ -305,7 +314,7 @@ export default function StoreDetail({ store, onClose, onDelete }) {
                     <div className="flex gap-2">
                       <button
                         onClick={() => setEditingItem(null)}
-                        className="flex-1 border border-gray-200 text-gray-600 rounded-lg py-1.5 text-xs font-medium"
+                        className="flex-1 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 rounded-lg py-1.5 text-xs font-medium"
                       >
                         Cancel
                       </button>
@@ -320,10 +329,10 @@ export default function StoreDetail({ store, onClose, onDelete }) {
                 ) : (
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-medium text-gray-800 text-sm">
+                      <p className="font-medium text-gray-800 dark:text-gray-100 text-sm">
                         {item.name}
                       </p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-gray-400 dark:text-gray-500">
                         {new Date(item.recorded_at).toLocaleDateString("en-PH")}
                       </p>
                       {isStale(item.recorded_at) && (
@@ -336,19 +345,20 @@ export default function StoreDetail({ store, onClose, onDelete }) {
                       <p className="font-bold text-green-600">
                         ₱{parseFloat(item.price).toFixed(2)}
                       </p>
+
                       <button
                         onClick={() => {
                           setEditingItem(item.id);
                           setEditItemName(item.name);
                           setEditItemPrice(item.price);
                         }}
-                        className="text-blue-300 hover:text-blue-500 text-xs font-medium"
+                        className="text-blue-300 dark:text-blue-400 hover:text-blue-500 text-xs font-medium"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDeleteItem(item.id)}
-                        className="text-red-300 hover:text-red-500 text-lg leading-none"
+                        className="text-red-300 dark:text-red-400 hover:text-red-500 text-lg leading-none"
                       >
                         &times;
                       </button>
