@@ -98,6 +98,21 @@ function createColoredIcon(color) {
     popupAnchor: [0, -42],
   });
 }
+
+function getDistanceMeters(lat1, lon1, lat2, lon2) {
+  const R = 6371000; // Earth radius in meters
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 export default function Map() {
   const [userPosition, setUserPosition] = useState(null);
   const [pinPosition, setPinPosition] = useState(null);
@@ -153,12 +168,31 @@ export default function Map() {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <LocationMarker onLocationFound={setUserPosition} />
+
         <MapClickHandler
           onMapClick={(latlng) => {
             if (searching) {
               setSearching(false);
               return;
             }
+
+            const nearby = stores.find(
+              (store) =>
+                getDistanceMeters(
+                  latlng.lat,
+                  latlng.lng,
+                  store.latitude,
+                  store.longitude,
+                ) < 20,
+            );
+
+            if (nearby) {
+              const proceed = confirm(
+                `There's already a store "${nearby.name}" within 20 meters. Add a new pin anyway?`,
+              );
+              if (!proceed) return;
+            }
+
             setPinPosition(latlng);
             setShowModal(true);
           }}
@@ -193,6 +227,21 @@ export default function Map() {
         <button
           onClick={() => {
             if (!userPosition) return alert("Waiting for your location...");
+            const nearby = stores.find(
+              (store) =>
+                getDistanceMeters(
+                  userPosition.lat,
+                  userPosition.lng,
+                  store.latitude,
+                  store.longitude,
+                ) < 20,
+            );
+            if (nearby) {
+              const proceed = confirm(
+                `There's already a store "${nearby.name}" within 20 meters. Add a new pin anyway?`,
+              );
+              if (!proceed) return;
+            }
             setPinPosition(userPosition);
             setShowModal(true);
           }}
