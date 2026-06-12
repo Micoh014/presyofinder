@@ -155,6 +155,10 @@ export default function Map() {
         <LocationMarker onLocationFound={setUserPosition} />
         <MapClickHandler
           onMapClick={(latlng) => {
+            if (searching) {
+              setSearching(false);
+              return;
+            }
             setPinPosition(latlng);
             setShowModal(true);
           }}
@@ -220,7 +224,13 @@ export default function Map() {
         />
       )}
 
-      <SearchBar onResults={handleSearchResults} onClear={handleSearchClear} />
+      <SearchBar
+        onResults={handleSearchResults}
+        onClear={handleSearchClear}
+        onReshow={() => {
+          if (searchResults.length > 0) setSearching(true);
+        }}
+      />
 
       {searching && (
         <SearchResults
