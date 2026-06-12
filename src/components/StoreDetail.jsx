@@ -2,6 +2,15 @@ import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import ReceiptScanner from "./ReceiptScanner";
 
+const STORE_TYPES = [
+  { value: "sari-sari", label: "🏪 Sari-sari Store" },
+  { value: "karinderia", label: "🍚 Karinderia" },
+  { value: "palengke", label: "🥬 Palengke" },
+  { value: "mall", label: "🏬 Mall" },
+  { value: "supermarket", label: "🛒 Supermarket" },
+  { value: "street-vendor", label: "🛵 Street Vendor" },
+  { value: "online", label: "📦 Online Seller" },
+];
 const STORE_ICONS = {
   "sari-sari": "🏪",
   karinderia: "🍚",
@@ -27,10 +36,27 @@ export default function StoreDetail({ store, onClose, onDelete }) {
   const [itemPrice, setItemPrice] = useState("");
   const [loading, setLoading] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editName, setEditName] = useState(store.name);
+  const [editType, setEditType] = useState(store.type);
+  const [editingItem, setEditingItem] = useState(null);
+  const [editItemName, setEditItemName] = useState("");
+  const [editItemPrice, setEditItemPrice] = useState("");
 
   useEffect(() => {
     fetchItems();
   }, [store.id]);
+  async function handleUpdateStore() {
+    if (!editName.trim()) return alert("Store name cannot be empty.");
+    const { error } = await supabase
+      .from("stores")
+      .update({ name: editName, type: editType })
+      .eq("id", store.id);
+    if (error) return alert("Error updating store: " + error.message);
+    store.name = editName;
+    store.type = editType;
+    setEditing(false);
+  }
 
   async function fetchItems() {
     const { data } = await supabase
@@ -39,6 +65,25 @@ export default function StoreDetail({ store, onClose, onDelete }) {
       .eq("store_id", store.id)
       .order("recorded_at", { ascending: false });
     if (data) setItems(data);
+  }
+
+  async function handleUpdateItem(itemId) {
+    if (!editItemName.trim()) return alert("Item name cannot be empty.");
+    if (!editItemPrice || isNaN(editItemPrice))
+      return alert("Please enter a valid price.");
+
+    const { error } = await supabase
+      .from("items")
+      .update({
+        name: editItemName.trim(),
+        price: parseFloat(editItemPrice),
+        recorded_at: new Date().toISOString(),
+      })
+      .eq("id", itemId);
+
+    if (error) return alert("Error updating item: " + error.message);
+    setEditingItem(null);
+    fetchItems();
   }
 
   async function handleAddItem() {
@@ -120,27 +165,72 @@ export default function StoreDetail({ store, onClose, onDelete }) {
 
         {/* Header (no photo) */}
         {!store.photo_url && (
-          <div className="flex justify-between items-start px-6 pt-6 pb-2">
-            <div>
-              <h2 className="text-xl font-bold text-gray-800">
-                {STORE_ICONS[store.type] || "📍"} {store.name}
-              </h2>
-              <p className="text-sm text-gray-400 capitalize">{store.type}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => onDelete(store.id)}
-                className="text-red-400 text-sm font-medium"
-              >
-                Delete
-              </button>
-              <button
-                onClick={onClose}
-                className="text-gray-400 text-2xl leading-none"
-              >
-                &times;
-              </button>
-            </div>
+          <div className="px-6 pt-6 pb-2">
+            {editing ? (
+              <div className="space-y-3">
+                <input
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                />
+                <select
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                  value={editType}
+                  onChange={(e) => setEditType(e.target.value)}
+                >
+                  {STORE_TYPES.map((t) => (
+                    <option key={t.value} value={t.value}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setEditing(false)}
+                    className="flex-1 border border-gray-200 text-gray-600 rounded-xl py-2 text-sm font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleUpdateStore}
+                    className="flex-1 bg-green-500 text-white rounded-xl py-2 text-sm font-medium"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex justify-between items-start">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800">
+                    {STORE_ICONS[store.type] || "📍"} {store.name}
+                  </h2>
+                  <p className="text-sm text-gray-400 capitalize">
+                    {store.type}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setEditing(true)}
+                    className="text-blue-400 text-sm font-medium"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => onDelete(store.id)}
+                    className="text-red-400 text-sm font-medium"
+                  >
+                    Delete
+                  </button>
+                  <button
+                    onClick={onClose}
+                    className="text-gray-400 text-2xl leading-none"
+                  >
+                    &times;
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -193,34 +283,78 @@ export default function StoreDetail({ store, onClose, onDelete }) {
             )}
 
             {items.map((item) => (
-              <div
-                key={item.id}
-                className="flex justify-between items-center bg-gray-50 rounded-xl px-4 py-3"
-              >
-                <div>
-                  <p className="font-medium text-gray-800 text-sm">
-                    {item.name}
-                  </p>
-                  <p className="text-xs text-gray-400">
-                    {new Date(item.recorded_at).toLocaleDateString("en-PH")}
-                  </p>
-                  {isStale(item.recorded_at) && (
-                    <p className="text-xs text-orange-400">
-                      ⚠️ May be outdated
+              <div key={item.id} className="bg-gray-50 rounded-xl px-4 py-3">
+                {editingItem === item.id ? (
+                  <div className="space-y-2">
+                    <input
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                      value={editItemName}
+                      onChange={(e) => setEditItemName(e.target.value)}
+                      placeholder="Item name"
+                    />
+                    <input
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                      value={editItemPrice}
+                      onChange={(e) => setEditItemPrice(e.target.value)}
+                      placeholder="Price"
+                      type="number"
+                    />
+                    <p className="text-xs text-gray-400">
+                      💡 Updating will refresh the date to today
                     </p>
-                  )}
-                </div>
-                <div className="flex items-center gap-3">
-                  <p className="font-bold text-green-600">
-                    ₱{parseFloat(item.price).toFixed(2)}
-                  </p>
-                  <button
-                    onClick={() => handleDeleteItem(item.id)}
-                    className="text-red-300 hover:text-red-500 text-lg leading-none"
-                  >
-                    &times;
-                  </button>
-                </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setEditingItem(null)}
+                        className="flex-1 border border-gray-200 text-gray-600 rounded-lg py-1.5 text-xs font-medium"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() => handleUpdateItem(item.id)}
+                        className="flex-1 bg-green-500 text-white rounded-lg py-1.5 text-xs font-medium"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-medium text-gray-800 text-sm">
+                        {item.name}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {new Date(item.recorded_at).toLocaleDateString("en-PH")}
+                      </p>
+                      {isStale(item.recorded_at) && (
+                        <p className="text-xs text-orange-400">
+                          ⚠️ May be outdated
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <p className="font-bold text-green-600">
+                        ₱{parseFloat(item.price).toFixed(2)}
+                      </p>
+                      <button
+                        onClick={() => {
+                          setEditingItem(item.id);
+                          setEditItemName(item.name);
+                          setEditItemPrice(item.price);
+                        }}
+                        className="text-blue-300 hover:text-blue-500 text-xs font-medium"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteItem(item.id)}
+                        className="text-red-300 hover:text-red-500 text-lg leading-none"
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
