@@ -20,13 +20,14 @@ export default function SearchResults({ results, onSelectStore }) {
   const mostExpensive = Math.max(...prices);
 
   return (
-    <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-1000 w-[90%] max-w-md bg-white rounded-2xl shadow-lg max-h-64 overflow-y-auto">
-      <div className="p-3 border-b border-gray-100">
-        <p className="text-xs text-gray-500 text-center">
+    <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-1000 w-[90%] max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-lg max-h-64 overflow-y-auto">
+      <div className="p-3 border-b border-gray-100 dark:border-gray-700">
+        <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
           {results.length} result{results.length > 1 ? "s" : ""} — sorted
           cheapest first
         </p>
       </div>
+
       {results.map((item, index) => {
         const stale = isStale(item.recorded_at);
         const isCheapest = item.price === cheapest;
@@ -37,11 +38,13 @@ export default function SearchResults({ results, onSelectStore }) {
           <button
             key={item.id}
             onClick={() => onSelectStore(item.stores)}
-            className="w-full flex justify-between items-center px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-0 text-left"
+            className="w-full flex justify-between items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-0 text-left"
           >
             <div>
-              <p className="font-medium text-gray-800">{item.stores?.name}</p>
-              <p className="text-xs text-gray-400 capitalize">
+              <p className="font-medium text-gray-800 dark:text-white">
+                {item.stores?.name}
+              </p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 capitalize">
                 {item.stores?.type}
               </p>
               {stale && (
@@ -50,6 +53,7 @@ export default function SearchResults({ results, onSelectStore }) {
                 </p>
               )}
             </div>
+
             <div className="text-right">
               <p
                 className={`font-bold text-lg ${isCheapest ? "text-green-500" : isMostExpensive ? "text-red-400" : "text-gray-700"}`}

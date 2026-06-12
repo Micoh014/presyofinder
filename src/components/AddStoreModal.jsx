@@ -61,13 +61,18 @@ export default function AddStoreModal({ position, onSave, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-1000">
-      <div className="bg-white w-full max-w-md rounded-t-3xl p-6 space-y-4">
+      <div className="bg-white dark:bg-gray-800 w-full max-w-md rounded-t-3xl p-6 space-y-4">
         {/* Handle bar */}
-        <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto -mt-1 mb-2" />
+        <div className="w-10 h-1 bg-gray-200 dark:bg-gray-600 rounded-full mx-auto -mt-1 mb-2" />
 
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-800">📍 Add Store</h2>
-          <button onClick={onClose} className="text-gray-400 text-2xl">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+            📍 Add Store
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 dark:text-gray-500 text-2xl"
+          >
             &times;
           </button>
         </div>
@@ -91,9 +96,9 @@ export default function AddStoreModal({ position, onSave, onClose }) {
             </button>
           </div>
         ) : (
-          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:border-green-400 transition-colors">
+          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl cursor-pointer hover:border-green-400 transition-colors">
             <span className="text-3xl mb-1">📷</span>
-            <span className="text-sm text-gray-400">
+            <span className="text-sm text-gray-400 dark:text-gray-500">
               Tap to add a store photo
             </span>
             <input
@@ -106,11 +111,11 @@ export default function AddStoreModal({ position, onSave, onClose }) {
         )}
 
         <div>
-          <label className="text-sm font-medium text-gray-600">
+          <label className="text-sm font-medium text-gray-600 dark:text-gray-300">
             Store Name
           </label>
           <input
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 mt-1 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
+            className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl px-4 py-3 mt-1 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
             placeholder="e.g. Aling Rosa's Store"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -118,7 +123,7 @@ export default function AddStoreModal({ position, onSave, onClose }) {
         </div>
 
         <div>
-          <label className="text-sm font-medium text-gray-600">
+          <label className="text-sm font-medium text-gray-600 dark:text-gray-300">
             Store Type
           </label>
           <div className="grid grid-cols-2 gap-2 mt-2">
@@ -129,7 +134,7 @@ export default function AddStoreModal({ position, onSave, onClose }) {
                 className={`px-3 py-2 rounded-xl text-sm font-medium border transition-colors ${
                   type === t.value
                     ? "bg-green-500 text-white border-green-500"
-                    : "bg-white text-gray-600 border-gray-200"
+                    : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600"
                 }`}
               >
                 {t.label}
@@ -141,7 +146,7 @@ export default function AddStoreModal({ position, onSave, onClose }) {
         <div className="flex gap-3 pt-2">
           <button
             onClick={onClose}
-            className="flex-1 border border-gray-200 text-gray-600 rounded-xl py-3 font-semibold text-sm"
+            className="flex-1 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 rounded-xl py-3 font-semibold text-sm"
           >
             Cancel
           </button>
