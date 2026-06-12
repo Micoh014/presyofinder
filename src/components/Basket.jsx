@@ -94,15 +94,20 @@ export default function Basket({ onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-1000">
-      <div className="bg-white w-full max-w-md rounded-t-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 w-full max-w-md rounded-t-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-800">🧺 Basket Finder</h2>
-          <button onClick={onClose} className="text-gray-400 text-2xl">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+            🧺 Basket Finder
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 dark:text-gray-500 text-2xl"
+          >
             &times;
           </button>
         </div>
 
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           Enter items you want to buy and find the cheapest store.
         </p>
 
@@ -111,7 +116,7 @@ export default function Basket({ onClose }) {
           {basketItems.map((item, index) => (
             <div key={index} className="flex gap-2 items-center">
               <input
-                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+                className="flex-1 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
                 placeholder={`Item ${index + 1} (e.g. Rice)`}
                 value={item.name}
                 onChange={(e) => handleItemChange(index, e.target.value)}
@@ -130,7 +135,7 @@ export default function Basket({ onClose }) {
 
         <button
           onClick={handleAddRow}
-          className="w-full border border-dashed border-gray-300 text-gray-400 rounded-lg py-2 text-sm"
+          className="w-full border border-dashed border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 rounded-lg py-2 text-sm"
         >
           + Add another item
         </button>
@@ -146,7 +151,9 @@ export default function Basket({ onClose }) {
         {/* Results */}
         {results && (
           <div className="space-y-4 pt-2">
-            <h3 className="font-bold text-gray-700">Results</h3>
+            <h3 className="font-bold text-gray-700 dark:text-gray-200">
+              Results
+            </h3>
 
             {results.sortedStores.length === 0 ? (
               <p className="text-sm text-orange-400">
@@ -156,22 +163,22 @@ export default function Basket({ onClose }) {
               results.sortedStores.map((storeResult, i) => (
                 <div
                   key={i}
-                  className={`rounded-xl border p-4 space-y-2 ${i === 0 ? "border-green-400 bg-green-50" : "border-gray-200"}`}
+                  className={`rounded-xl border p-4 space-y-2 ${i === 0 ? "border-green-400 bg-green-50 dark:bg-green-900/30" : "border-gray-200 dark:border-gray-600"}`}
                 >
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-bold text-gray-800">
+                      <p className="font-bold text-gray-800 dark:text-white">
                         {storeResult.store?.name}
                       </p>
-                      <p className="text-xs text-gray-400 capitalize">
+                      <p className="text-xs text-gray-400 dark:text-gray-500 capitalize">
                         {storeResult.store?.type}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-green-600 text-lg">
+                      <p className="font-bold text-green-600 dark:text-green-400 text-lg">
                         ₱{storeResult.total.toFixed(2)}
                       </p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-gray-400 dark:text-gray-500">
                         {storeResult.count}/{results.totalItems} items
                       </p>
                     </div>
@@ -186,8 +193,10 @@ export default function Basket({ onClose }) {
                   <div className="space-y-1">
                     {storeResult.items.map((item, j) => (
                       <div key={j} className="flex justify-between text-sm">
-                        <span className="text-gray-600">{item.foundName}</span>
-                        <span className="text-gray-800 font-medium">
+                        <span className="text-gray-600 dark:text-gray-300">
+                          {item.foundName}
+                        </span>
+                        <span className="text-gray-800 dark:text-gray-100 font-medium">
                           ₱{parseFloat(item.price).toFixed(2)}
                         </span>
                       </div>

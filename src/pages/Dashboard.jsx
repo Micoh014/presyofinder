@@ -70,73 +70,86 @@ export default function Dashboard({ onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-white z-2000 overflow-y-auto">
+    <div className="fixed inset-0 bg-white dark:bg-gray-900 z-2000 overflow-y-auto">
       {/* Header */}
-      <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100">
-        <h1 className="text-2xl font-bold text-gray-800">📊 Dashboard</h1>
-        <button onClick={onClose} className="text-gray-400 text-2xl">
+      <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+          📊 Dashboard
+        </h1>
+        <button
+          onClick={onClose}
+          className="text-gray-400 dark:text-gray-500 text-2xl"
+        >
           &times;
         </button>
       </div>
 
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <p className="text-gray-400">Loading stats...</p>
+          <p className="text-gray-400 dark:text-gray-500">Loading stats...</p>
         </div>
       ) : (
         <div className="px-6 py-4 space-y-6">
           {/* Summary Cards */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-green-50 rounded-2xl p-4">
-              <p className="text-3xl font-bold text-green-600">
-                {stats.totalStores}
-              </p>
-              <p className="text-sm text-gray-500 mt-1">Stores Pinned</p>
-            </div>
-            <div className="bg-blue-50 rounded-2xl p-4">
-              <p className="text-3xl font-bold text-blue-600">
-                {stats.totalItems}
-              </p>
-              <p className="text-sm text-gray-500 mt-1">Prices Logged</p>
-            </div>
-            <div className="bg-yellow-50 rounded-2xl p-4">
-              <p className="text-3xl font-bold text-yellow-600">
-                {stats.staleCount}
-              </p>
-              <p className="text-sm text-gray-500 mt-1">Outdated Prices</p>
-            </div>
-            <div className="bg-purple-50 rounded-2xl p-4">
-              <p className="text-3xl font-bold text-purple-600">
-                {stats.mostLoggedItem ? stats.mostLoggedItem[1] : 0}
-              </p>
-              <p className="text-sm text-gray-500 mt-1">
-                Most logged:{" "}
-                {stats.mostLoggedItem ? stats.mostLoggedItem[0] : "N/A"}
-              </p>
-            </div>
+          <div className="bg-green-50 dark:bg-green-900/30 rounded-2xl p-4">
+            <p className="text-3xl font-bold text-green-600 dark:text-green-400">
+              {stats.totalStores}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Stores Pinned
+            </p>
+          </div>
+          <div className="bg-blue-50 dark:bg-blue-900/30 rounded-2xl p-4">
+            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+              {stats.totalItems}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Prices Logged
+            </p>
+          </div>
+          <div className="bg-yellow-50 dark:bg-yellow-900/30 rounded-2xl p-4">
+            <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
+              {stats.staleCount}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Outdated Prices
+            </p>
+          </div>
+          <div className="bg-purple-50 dark:bg-purple-900/30 rounded-2xl p-4">
+            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+              {stats.mostLoggedItem ? stats.mostLoggedItem[1] : 0}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Most logged:{" "}
+              {stats.mostLoggedItem ? stats.mostLoggedItem[0] : "N/A"}
+            </p>
           </div>
 
           {/* Cheapest Finds */}
           <div>
-            <h2 className="text-lg font-bold text-gray-700 mb-3">
+            <h2 className="text-lg font-bold text-gray-700 dark:text-gray-200 mb-3">
               💰 Your Cheapest Finds
             </h2>
             {stats.cheapestFinds.length === 0 ? (
-              <p className="text-sm text-gray-400">No items logged yet.</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500">
+                No items logged yet.
+              </p>
             ) : (
               <div className="space-y-2">
                 {stats.cheapestFinds.map((find, i) => (
                   <div
                     key={i}
-                    className="flex justify-between items-center bg-gray-50 rounded-xl px-4 py-3"
+                    className="flex justify-between items-center bg-gray-50 dark:bg-gray-800 rounded-xl px-4 py-3"
                   >
                     <div>
-                      <p className="font-medium text-gray-800 capitalize">
+                      <p className="font-medium text-gray-800 dark:text-gray-100 capitalize">
                         {find.name}
                       </p>
-                      <p className="text-xs text-gray-400">{find.store}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500">
+                        {find.store}
+                      </p>
                     </div>
-                    <p className="font-bold text-green-600">
+                    <p className="font-bold text-green-600 dark:text-green-400">
                       ₱{parseFloat(find.price).toFixed(2)}
                     </p>
                   </div>
@@ -157,10 +170,12 @@ export default function Dashboard({ onClose }) {
                 {stats.recentStores.map((store) => (
                   <div
                     key={store.id}
-                    className="flex justify-between items-center bg-gray-50 rounded-xl px-4 py-3"
+                    className="flex justify-between items-center bg-gray-50 dark:bg-gray-800 rounded-xl px-4 py-3"
                   >
-                    <p className="font-medium text-gray-800">{store.name}</p>
-                    <p className="text-xs text-gray-400 capitalize">
+                    <p className="font-medium text-gray-800 dark:text-gray-100">
+                      {store.name}
+                    </p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 capitalize">
                       {store.type}
                     </p>
                   </div>
