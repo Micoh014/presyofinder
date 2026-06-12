@@ -113,6 +113,17 @@ function getDistanceMeters(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
+const STORE_TYPE_FILTERS = [
+  { value: "all", label: "All", icon: "📍" },
+  { value: "sari-sari", label: "Sari-sari", icon: "🏪" },
+  { value: "karinderia", label: "Karinderia", icon: "🍚" },
+  { value: "palengke", label: "Palengke", icon: "🥬" },
+  { value: "mall", label: "Mall", icon: "🏬" },
+  { value: "supermarket", label: "Supermarket", icon: "🛒" },
+  { value: "street-vendor", label: "Street Vendor", icon: "🛵" },
+  { value: "online", label: "Online", icon: "📦" },
+];
+
 export default function Map() {
   const [userPosition, setUserPosition] = useState(null);
   const [pinPosition, setPinPosition] = useState(null);
@@ -123,6 +134,7 @@ export default function Map() {
   const [searching, setSearching] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
   const [showBasket, setShowBasket] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("all");
 
   useEffect(() => {
     fetchStores();
@@ -198,22 +210,26 @@ export default function Map() {
           }}
         />
 
-        {stores.map((store) => (
-          <Marker
-            key={`${store.id}-${getPinColor(store, searchResults)}`}
-            position={[store.latitude, store.longitude]}
-            icon={createColoredIcon(getPinColor(store, searchResults))}
-            eventHandlers={{
-              click: () => setSelectedStore(store),
-              mouseover: (e) => e.target.openPopup(),
-              mouseout: (e) => e.target.closePopup(),
-            }}
-          >
-            <Popup closeButton={false} autoPan={false}>
-              <span className="text-sm font-medium">{store.name}</span>
-            </Popup>
-          </Marker>
-        ))}
+        {stores
+          .filter(
+            (store) => activeFilter === "all" || store.type === activeFilter,
+          )
+          .map((store) => (
+            <Marker
+              key={`${store.id}-${getPinColor(store, searchResults)}`}
+              position={[store.latitude, store.longitude]}
+              icon={createColoredIcon(getPinColor(store, searchResults))}
+              eventHandlers={{
+                click: () => setSelectedStore(store),
+                mouseover: (e) => e.target.openPopup(),
+                mouseout: (e) => e.target.closePopup(),
+              }}
+            >
+              <Popup closeButton={false} autoPan={false}>
+                <span className="text-sm font-medium">{store.name}</span>
+              </Popup>
+            </Marker>
+          ))}
       </MapContainer>
 
       {/* Bottom Bar */}
@@ -280,6 +296,23 @@ export default function Map() {
           if (searchResults.length > 0) setSearching(true);
         }}
       />
+      <div className="absolute top-20 left-0 w-full overflow-x-auto px-4 z-1000">
+        <div className="flex gap-2 w-max">
+          {STORE_TYPE_FILTERS.map((f) => (
+            <button
+              key={f.value}
+              onClick={() => setActiveFilter(f.value)}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-md transition-colors ${
+                activeFilter === f.value
+                  ? "bg-green-500 text-white"
+                  : "bg-white text-gray-600"
+              }`}
+            >
+              {f.icon} {f.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {searching && (
         <SearchResults

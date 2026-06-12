@@ -74,4 +74,24 @@ export default function SearchBar({ onResults, onClear, onReshow }) {
       )}
     </div>
   );
+  {
+    /* Filter Bar */
+  }
+  <div className="absolute top-20 left-0 w-full overflow-x-auto px-4 z-[1000]">
+    <div className="flex gap-2 w-max">
+      {STORE_TYPE_FILTERS.map((f) => (
+        <button
+          key={f.value}
+          onClick={() => setActiveFilter(f.value)}
+          className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-md transition-colors ${
+            activeFilter === f.value
+              ? "bg-green-500 text-white"
+              : "bg-white text-gray-600"
+          }`}
+        >
+          {f.icon} {f.label}
+        </button>
+      ))}
+    </div>
+  </div>;
 }
