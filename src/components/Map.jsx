@@ -124,7 +124,7 @@ const STORE_TYPE_FILTERS = [
   { value: "online", label: "Online", icon: "📦" },
 ];
 
-export default function Map() {
+export default function Map({ darkMode }) {
   const [userPosition, setUserPosition] = useState(null);
   const [pinPosition, setPinPosition] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -177,7 +177,11 @@ export default function Map() {
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          url={
+            darkMode
+              ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+              : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          }
         />
         <LocationMarker onLocationFound={setUserPosition} />
 
