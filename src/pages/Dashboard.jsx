@@ -91,38 +91,40 @@ export default function Dashboard({ onClose }) {
       ) : (
         <div className="px-6 py-4 space-y-6">
           {/* Summary Cards */}
-          <div className="bg-green-50 dark:bg-green-900/30 rounded-2xl p-4">
-            <p className="text-3xl font-bold text-green-600 dark:text-green-400">
-              {stats.totalStores}
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Stores Pinned
-            </p>
-          </div>
-          <div className="bg-blue-50 dark:bg-blue-900/30 rounded-2xl p-4">
-            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-              {stats.totalItems}
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Prices Logged
-            </p>
-          </div>
-          <div className="bg-yellow-50 dark:bg-yellow-900/30 rounded-2xl p-4">
-            <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
-              {stats.staleCount}
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Outdated Prices
-            </p>
-          </div>
-          <div className="bg-purple-50 dark:bg-purple-900/30 rounded-2xl p-4">
-            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-              {stats.mostLoggedItem ? stats.mostLoggedItem[1] : 0}
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Most logged:{" "}
-              {stats.mostLoggedItem ? stats.mostLoggedItem[0] : "N/A"}
-            </p>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-green-50 dark:bg-green-900/30 rounded-2xl p-4">
+              <p className="text-3xl font-bold text-green-600 dark:text-green-400">
+                {stats.totalStores}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Stores Pinned
+              </p>
+            </div>
+            <div className="bg-blue-50 dark:bg-blue-900/30 rounded-2xl p-4">
+              <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                {stats.totalItems}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Prices Logged
+              </p>
+            </div>
+            <div className="bg-yellow-50 dark:bg-yellow-900/30 rounded-2xl p-4">
+              <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
+                {stats.staleCount}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Outdated Prices
+              </p>
+            </div>
+            <div className="bg-purple-50 dark:bg-purple-900/30 rounded-2xl p-4">
+              <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                {stats.mostLoggedItem ? stats.mostLoggedItem[1] : 0}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Most logged:{" "}
+                {stats.mostLoggedItem ? stats.mostLoggedItem[0] : "N/A"}
+              </p>
+            </div>
           </div>
 
           {/* Cheapest Finds */}
@@ -160,11 +162,13 @@ export default function Dashboard({ onClose }) {
 
           {/* Recent Stores */}
           <div>
-            <h2 className="text-lg font-bold text-gray-700 mb-3">
+            <h2 className="text-lg font-bold text-gray-700 dark:text-gray-200 mb-3">
               📍 Recently Added Stores
             </h2>
             {stats.recentStores.length === 0 ? (
-              <p className="text-sm text-gray-400">No stores yet.</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500">
+                No stores yet.
+              </p>
             ) : (
               <div className="space-y-2">
                 {stats.recentStores.map((store) => (

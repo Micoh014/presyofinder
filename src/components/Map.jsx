@@ -16,6 +16,7 @@ import SearchBar from "./SearchBar";
 import SearchResults from "./SearchResults";
 import Dashboard from "../pages/Dashboard";
 import Basket from "./Basket";
+import { useRef } from "react";
 
 function LocationMarker({ onLocationFound }) {
   const map = useMap();
@@ -124,6 +125,14 @@ const STORE_TYPE_FILTERS = [
   { value: "online", label: "Online", icon: "📦" },
 ];
 
+function MapRefSetter({ mapRef }) {
+  const map = useMap();
+  useEffect(() => {
+    mapRef.current = map;
+  }, [map]);
+  return null;
+}
+
 export default function Map({ darkMode }) {
   const [userPosition, setUserPosition] = useState(null);
   const [pinPosition, setPinPosition] = useState(null);
@@ -135,6 +144,7 @@ export default function Map({ darkMode }) {
   const [showDashboard, setShowDashboard] = useState(false);
   const [showBasket, setShowBasket] = useState(false);
   const [activeFilter, setActiveFilter] = useState("all");
+  const mapRef = useRef(null);
 
   useEffect(() => {
     fetchStores();
@@ -161,6 +171,10 @@ export default function Map({ darkMode }) {
     setSearchResults([]);
     setSearching(false);
   }
+  function handleRecenter() {
+    if (!userPosition || !mapRef.current) return;
+    mapRef.current.flyTo(userPosition, 16);
+  }
   async function handleDeleteStore(storeId) {
     if (!confirm("Delete this store and all its items?")) return;
     const { error } = await supabase.from("stores").delete().eq("id", storeId);
@@ -184,6 +198,7 @@ export default function Map({ darkMode }) {
           }
         />
         <LocationMarker onLocationFound={setUserPosition} />
+        <MapRefSetter mapRef={mapRef} />
 
         <MapClickHandler
           onMapClick={(latlng) => {
@@ -236,6 +251,16 @@ export default function Map({ darkMode }) {
           ))}
       </MapContainer>
 
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          handleRecenter();
+        }}
+        className="absolute top-4 right-4 z-1000 bg-white dark:bg-gray-800 text-blue-500 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-xl"
+        title="Recenter to my location"
+      >
+        🏠
+      </button>
       {/* Bottom Bar */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-1000 flex gap-3">
         <button
@@ -303,8 +328,8 @@ export default function Map({ darkMode }) {
         getDistance={getDistanceMeters}
       />
 
-      <div className="absolute top-20 left-0 w-full overflow-x-auto px-4 z-1000">
-        <div className="flex gap-2 w-max">
+      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-full overflow-x-auto px-4 z-1000">
+        <div className="flex gap-2 w-max mx-auto">
           {STORE_TYPE_FILTERS.map((f) => (
             <button
               key={f.value}

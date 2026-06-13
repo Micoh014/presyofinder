@@ -28,8 +28,20 @@ function App() {
             <p className="text-xs text-gray-400">Your personal price map</p>
           </div>
         </div>
-        <button onClick={() => setDarkMode(!darkMode)} className="text-2xl">
-          {darkMode ? "☀️" : "🌙"}
+
+        <button
+          onClick={() => setDarkMode(!darkMode)}
+          className={`relative w-16 h-8 rounded-full transition-colors duration-300 flex items-center px-1 ${
+            darkMode ? "bg-gray-700" : "bg-yellow-100"
+          }`}
+        >
+          <div
+            className={`w-6 h-6 rounded-full shadow-md flex items-center justify-center text-sm transition-transform duration-300 ${
+              darkMode ? "translate-x-8 bg-gray-900" : "translate-x-0 bg-white"
+            }`}
+          >
+            {darkMode ? "🌙" : "☀️"}
+          </div>
         </button>
       </div>
 
