@@ -299,7 +299,10 @@ export default function Map({ darkMode }) {
         onReshow={() => {
           if (searchResults.length > 0) setSearching(true);
         }}
+        userPosition={userPosition}
+        getDistance={getDistanceMeters}
       />
+
       <div className="absolute top-20 left-0 w-full overflow-x-auto px-4 z-1000">
         <div className="flex gap-2 w-max">
           {STORE_TYPE_FILTERS.map((f) => (
@@ -321,6 +324,8 @@ export default function Map({ darkMode }) {
       {searching && (
         <SearchResults
           results={searchResults}
+          userPosition={userPosition}
+          getDistance={getDistanceMeters}
           onSelectStore={(store) => {
             setSelectedStore(store);
             setSearching(false);

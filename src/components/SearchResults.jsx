@@ -7,13 +7,23 @@ function isStale(dateStr) {
   return diffDays > FRESHNESS_DAYS;
 }
 
-export default function SearchResults({ results, onSelectStore }) {
+export default function SearchResults({
+  results,
+  onSelectStore,
+  userPosition,
+  getDistance,
+}) {
   if (!results || results.length === 0)
     return (
       <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-1000 w-[90%] max-w-md bg-white rounded-2xl shadow-lg p-4">
         <p className="text-center text-gray-400 text-sm">No results found.</p>
       </div>
     );
+
+  function formatDistance(meters) {
+    if (meters < 1000) return `${Math.round(meters)}m`;
+    return `${(meters / 1000).toFixed(1)}km`;
+  }
 
   const prices = results.map((r) => r.price);
   const cheapest = Math.min(...prices);
@@ -47,6 +57,20 @@ export default function SearchResults({ results, onSelectStore }) {
               <p className="text-xs text-gray-400 dark:text-gray-500 capitalize">
                 {item.stores?.type}
               </p>
+              {userPosition && item.stores && (
+                <p className="text-xs text-blue-400 dark:text-blue-300">
+                  📍{" "}
+                  {formatDistance(
+                    getDistance(
+                      userPosition.lat,
+                      userPosition.lng,
+                      item.stores.latitude,
+                      item.stores.longitude,
+                    ),
+                  )}{" "}
+                  away
+                </p>
+              )}
               {stale && (
                 <p className="text-xs text-orange-400">
                   ⚠️ Price may be outdated

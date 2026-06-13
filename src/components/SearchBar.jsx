@@ -1,12 +1,19 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
 
-export default function SearchBar({ onResults, onClear, onReshow }) {
+export default function SearchBar({
+  onResults,
+  onClear,
+  onReshow,
+  userPosition,
+  getDistance,
+}) {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [sortAsc, setSortAsc] = useState(true);
+  const [sortMode, setSortMode] = useState("price-asc"); // price-asc, price-desc, distance
 
-  async function handleSearch(value, ascending = sortAsc) {
+  async function handleSearch(value, mode = sortMode) {
     setQuery(value);
     if (!value.trim()) {
       onClear();
@@ -18,16 +25,39 @@ export default function SearchBar({ onResults, onClear, onReshow }) {
       .from("items")
       .select("*, stores(*)")
       .ilike("name", `%${value}%`)
-      .order("price", { ascending });
+      .order("price", { ascending: mode !== "price-desc" });
     setLoading(false);
 
-    if (data) onResults(data);
+    if (!data) return;
+
+    let sorted = data;
+    if (mode === "distance" && userPosition) {
+      sorted = [...data].sort((a, b) => {
+        const distA = getDistance(
+          userPosition.lat,
+          userPosition.lng,
+          a.stores.latitude,
+          a.stores.longitude,
+        );
+        const distB = getDistance(
+          userPosition.lat,
+          userPosition.lng,
+          b.stores.latitude,
+          b.stores.longitude,
+        );
+        return distA - distB;
+      });
+    }
+
+    onResults(sorted);
   }
 
-  function toggleSort() {
-    const newAsc = !sortAsc;
-    setSortAsc(newAsc);
-    if (query.trim()) handleSearch(query, newAsc);
+  function cycleSortMode() {
+    const modes = ["price-asc", "price-desc", "distance"];
+    const currentIndex = modes.indexOf(sortMode);
+    const nextMode = modes[(currentIndex + 1) % modes.length];
+    setSortMode(nextMode);
+    if (query.trim()) handleSearch(query, nextMode);
   }
 
   return (
@@ -57,18 +87,30 @@ export default function SearchBar({ onResults, onClear, onReshow }) {
 
         {/* Sort Button */}
         <button
-          onClick={toggleSort}
-          className="bg-white shadow-lg rounded-full w-12 h-12 flex items-center justify-center text-gray-600 hover:text-green-500 transition-colors"
-          title={sortAsc ? "Cheapest first" : "Most expensive first"}
+          onClick={cycleSortMode}
+          className="bg-white dark:bg-gray-800 shadow-lg rounded-full w-12 h-12 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-green-500 transition-colors text-lg"
+          title={
+            sortMode === "price-asc"
+              ? "Cheapest first"
+              : sortMode === "price-desc"
+                ? "Most expensive first"
+                : "Nearest first"
+          }
         >
-          {sortAsc ? "↑" : "↓"}
+          {sortMode === "price-asc"
+            ? "↑"
+            : sortMode === "price-desc"
+              ? "↓"
+              : "📍"}
         </button>
       </div>
 
       {/* Sort label */}
       {query && (
-        <p className="text-xs text-gray-400 mt-1 ml-4">
-          {sortAsc ? "↑ Cheapest first" : "↓ Most expensive first"}
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 ml-4">
+          {sortMode === "price-asc" && "↑ Cheapest first"}
+          {sortMode === "price-desc" && "↓ Most expensive first"}
+          {sortMode === "distance" && "📍 Nearest first"}
         </p>
       )}
     </div>
