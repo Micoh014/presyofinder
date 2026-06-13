@@ -6,6 +6,7 @@ import {
   useMap,
   useMapEvents,
   CircleMarker,
+  Polyline,
 } from "react-leaflet";
 import { useEffect, useState } from "react";
 import L from "leaflet";
@@ -145,6 +146,7 @@ export default function Map({ darkMode }) {
   const [showBasket, setShowBasket] = useState(false);
   const [activeFilter, setActiveFilter] = useState("all");
   const mapRef = useRef(null);
+  const [trailTarget, setTrailTarget] = useState(null);
 
   useEffect(() => {
     fetchStores();
@@ -249,6 +251,34 @@ export default function Map({ darkMode }) {
               </Popup>
             </Marker>
           ))}
+
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 w-full overflow-x-auto px-4 z-1000">
+          <div className="flex gap-2 w-max mx-auto">
+            {STORE_TYPE_FILTERS.map((f) => (
+              <button
+                key={f.value}
+                onClick={() => setActiveFilter(f.value)}
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-md transition-colors ${
+                  activeFilter === f.value
+                    ? "bg-green-500 text-white"
+                    : "bg-white text-gray-600"
+                }`}
+              >
+                {f.icon} {f.label}
+              </button>
+            ))}
+
+            {trailTarget && userPosition && (
+              <Polyline
+                positions={[
+                  [userPosition.lat, userPosition.lng],
+                  [trailTarget.latitude, trailTarget.longitude],
+                ]}
+                pathOptions={{ color: "#3b82f6", weight: 3, dashArray: "8, 8" }}
+              />
+            )}
+          </div>
+        </div>
       </MapContainer>
 
       <button
@@ -261,6 +291,7 @@ export default function Map({ darkMode }) {
       >
         🏠
       </button>
+
       {/* Bottom Bar */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-1000 flex gap-3">
         <button
@@ -313,7 +344,10 @@ export default function Map({ darkMode }) {
       {selectedStore && (
         <StoreDetail
           store={selectedStore}
-          onClose={() => setSelectedStore(null)}
+          onClose={() => {
+            setSelectedStore(null);
+            setTrailTarget(null);
+          }}
           onDelete={handleDeleteStore}
         />
       )}
@@ -321,39 +355,24 @@ export default function Map({ darkMode }) {
       <SearchBar
         onResults={handleSearchResults}
         onClear={handleSearchClear}
+        userPosition={userPosition}
+        getDistance={getDistanceMeters}
         onReshow={() => {
           if (searchResults.length > 0) setSearching(true);
         }}
-        userPosition={userPosition}
-        getDistance={getDistanceMeters}
       />
 
-      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-full overflow-x-auto px-4 z-1000">
-        <div className="flex gap-2 w-max mx-auto">
-          {STORE_TYPE_FILTERS.map((f) => (
-            <button
-              key={f.value}
-              onClick={() => setActiveFilter(f.value)}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-md transition-colors ${
-                activeFilter === f.value
-                  ? "bg-green-500 text-white"
-                  : "bg-white text-gray-600"
-              }`}
-            >
-              {f.icon} {f.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {searching && (
+      {searching && searchResults.length > 0 && (
         <SearchResults
           results={searchResults}
           userPosition={userPosition}
           getDistance={getDistanceMeters}
           onSelectStore={(store) => {
-            setSelectedStore(store);
+            setTrailTarget(store);
             setSearching(false);
+            if (mapRef.current) {
+              mapRef.current.flyTo([store.latitude, store.longitude], 16);
+            }
           }}
         />
       )}

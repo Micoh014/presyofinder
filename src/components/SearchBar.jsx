@@ -69,6 +69,7 @@ export default function SearchBar({
             placeholder="Search item (e.g. Rice, Egg...)"
             value={query}
             onChange={(e) => handleSearch(e.target.value)}
+            onFocus={onReshow}
           />
           {loading && (
             <span className="absolute right-4 top-3 text-gray-400 text-sm">

@@ -42,6 +42,8 @@ export default function StoreDetail({ store, onClose, onDelete }) {
   const [editingItem, setEditingItem] = useState(null);
   const [editItemName, setEditItemName] = useState("");
   const [editItemPrice, setEditItemPrice] = useState("");
+  const [itemPhoto, setItemPhoto] = useState(null);
+  const [itemPhotoPreview, setItemPhotoPreview] = useState(null);
 
   useEffect(() => {
     fetchItems();
@@ -296,7 +298,7 @@ export default function StoreDetail({ store, onClose, onDelete }) {
                 {editingItem === item.id ? (
                   <div className="space-y-2">
                     <input
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                      className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                       value={editItemName}
                       onChange={(e) => setEditItemName(e.target.value)}
                       placeholder="Item name"
