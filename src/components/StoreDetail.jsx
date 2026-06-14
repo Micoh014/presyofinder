@@ -30,7 +30,7 @@ function isStale(dateStr) {
   return diffDays > FRESHNESS_DAYS;
 }
 
-export default function StoreDetail({ store, onClose, onDelete }) {
+export default function StoreDetail({ store, onClose, onDelete, userId }) {
   const [items, setItems] = useState([]);
   const [itemName, setItemName] = useState("");
   const [itemPrice, setItemPrice] = useState("");
@@ -96,6 +96,7 @@ export default function StoreDetail({ store, onClose, onDelete }) {
         store_id: store.id,
         name: itemName.trim(),
         price: parseFloat(itemPrice),
+        user_id: userId,
       },
     ]);
     setLoading(false);
@@ -119,6 +120,7 @@ export default function StoreDetail({ store, onClose, onDelete }) {
           store_id: store.id,
           name: item.name,
           price: parseFloat(item.price),
+          user_id: userId,
         },
       ]);
     }

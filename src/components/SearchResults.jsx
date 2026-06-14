@@ -40,7 +40,6 @@ export default function SearchResults({
           {sortMode === "distance" && "nearest first"}
         </p>
       </div>
-
       {results.map((item, index) => {
         const stale = isStale(item.recorded_at);
         const isCheapest = item.price === cheapest;

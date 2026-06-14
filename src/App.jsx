@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
 import Map from "./components/Map";
 import LoadingScreen from "./components/LoadingScreen";
+import Login from "./components/Login";
+import { supabase } from "./lib/supabase";
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
     if (darkMode) {
@@ -19,7 +23,24 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  if (loading) return <LoadingScreen />;
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setCheckingAuth(false);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session);
+      },
+    );
+
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  if (loading || checkingAuth) return <LoadingScreen />;
+
+  if (!session) return <Login />;
 
   return (
     <div
@@ -37,25 +58,35 @@ function App() {
             <p className="text-xs text-gray-400">Your personal price map</p>
           </div>
         </div>
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className={`relative w-16 h-8 rounded-full transition-colors duration-300 flex items-center px-1 ${
-            darkMode ? "bg-gray-700" : "bg-yellow-100"
-          }`}
-        >
-          <div
-            className={`w-6 h-6 rounded-full shadow-md flex items-center justify-center text-sm transition-transform duration-300 ${
-              darkMode ? "translate-x-8 bg-gray-900" : "translate-x-0 bg-white"
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => supabase.auth.signOut()}
+            className="text-sm text-gray-400 dark:text-gray-500"
+          >
+            Logout
+          </button>
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className={`relative w-16 h-8 rounded-full transition-colors duration-300 flex items-center px-1 ${
+              darkMode ? "bg-gray-700" : "bg-yellow-100"
             }`}
           >
-            {darkMode ? "🌙" : "☀️"}
-          </div>
-        </button>
+            <div
+              className={`w-6 h-6 rounded-full shadow-md flex items-center justify-center text-sm transition-transform duration-300 ${
+                darkMode
+                  ? "translate-x-8 bg-gray-900"
+                  : "translate-x-0 bg-white"
+              }`}
+            >
+              {darkMode ? "🌙" : "☀️"}
+            </div>
+          </button>
+        </div>
       </div>
 
       {/* Map */}
       <div className="flex-1 relative">
-        <Map darkMode={darkMode} />
+        <Map darkMode={darkMode} userId={session.user.id} />
       </div>
     </div>
   );

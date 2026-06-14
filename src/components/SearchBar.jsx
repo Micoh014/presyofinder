@@ -8,6 +8,7 @@ export default function SearchBar({
   userPosition,
   getDistance,
   onSortModeChange,
+  userId,
 }) {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,6 +26,7 @@ export default function SearchBar({
     const { data } = await supabase
       .from("items")
       .select("*, stores(*)")
+      .eq("user_id", userId)
       .ilike("name", `%${value}%`)
       .order("price", { ascending: mode !== "price-desc" });
     setLoading(false);

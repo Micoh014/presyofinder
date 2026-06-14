@@ -143,7 +143,7 @@ function MapRefSetter({ mapRef }) {
   return null;
 }
 
-export default function Map({ darkMode }) {
+export default function Map({ darkMode, userId }) {
   const [userPosition, setUserPosition] = useState(null);
   const [pinPosition, setPinPosition] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -160,16 +160,21 @@ export default function Map({ darkMode }) {
   const [trailRoute, setTrailRoute] = useState(null);
 
   useEffect(() => {
-    fetchStores();
-  }, []);
+    if (userId) fetchStores();
+  }, [userId]);
 
   async function fetchStores() {
-    const { data } = await supabase.from("stores").select("*");
+    const { data } = await supabase
+      .from("stores")
+      .select("*")
+      .eq("user_id", userId);
     if (data) setStores(data);
   }
 
   async function handleSaveStore(storeData) {
-    const { error } = await supabase.from("stores").insert([storeData]);
+    const { error } = await supabase
+      .from("stores")
+      .insert([{ ...storeData, user_id: userId }]);
     if (error) return alert("Error saving store: " + error.message);
     setShowModal(false);
     fetchStores();
@@ -178,6 +183,7 @@ export default function Map({ darkMode }) {
   function handleSearchResults(results) {
     setSearchResults(results);
     setSearching(true);
+    setShowModal(false);
   }
 
   function handleSearchClear() {
@@ -265,6 +271,7 @@ export default function Map({ darkMode }) {
               if (!proceed) return;
             }
 
+            setSearching(false);
             setPinPosition(latlng);
             setShowModal(true);
           }}
@@ -333,6 +340,7 @@ export default function Map({ darkMode }) {
         </button>
         <button
           onClick={() => {
+            setSearching(false);
             if (!userPosition) return alert("Waiting for your location...");
             const nearby = stores.find(
               (store) =>
@@ -380,6 +388,7 @@ export default function Map({ darkMode }) {
             setTrailTarget(null);
           }}
           onDelete={handleDeleteStore}
+          userId={userId}
         />
       )}
 
@@ -404,6 +413,7 @@ export default function Map({ darkMode }) {
           if (searchResults.length > 0) setSearching(true);
         }}
         onSortModeChange={setSortMode}
+        userId={userId}
       />
 
       {searching && searchResults.length > 0 && (
