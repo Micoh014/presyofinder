@@ -18,6 +18,8 @@ import SearchResults from "./SearchResults";
 import Dashboard from "../pages/Dashboard";
 import Basket from "./Basket";
 import { useRef } from "react";
+import { showToast } from "../lib/toast";
+import ConfirmDialog from "./ConfirmDialog";
 
 function LocationMarker({ onLocationFound }) {
   const map = useMap();
@@ -159,6 +161,7 @@ export default function Map({ darkMode, userId }) {
   const [sortMode, setSortMode] = useState("price-asc");
   const [trailRoute, setTrailRoute] = useState(null);
   const [storesLoading, setStoresLoading] = useState(true);
+  const [confirmDialog, setConfirmDialog] = useState(null);
 
   useEffect(() => {
     if (userId) fetchStores();
@@ -178,7 +181,8 @@ export default function Map({ darkMode, userId }) {
     const { error } = await supabase
       .from("stores")
       .insert([{ ...storeData, user_id: userId }]);
-    if (error) return alert("Error saving store: " + error.message);
+    if (error)
+      return showToast("Error saving store: " + error.message, "error");
     setShowModal(false);
     fetchStores();
   }
@@ -200,11 +204,23 @@ export default function Map({ darkMode, userId }) {
     mapRef.current.flyTo(userPosition, 16);
   }
   async function handleDeleteStore(storeId) {
-    if (!confirm("Delete this store and all its items?")) return;
-    const { error } = await supabase.from("stores").delete().eq("id", storeId);
-    if (error) return alert("Error deleting store: " + error.message);
-    setSelectedStore(null);
-    fetchStores();
+    setConfirmDialog({
+      title: "Delete Store?",
+      message:
+        "This will also delete all items logged for this store. This cannot be undone. Are you sure?",
+      danger: true,
+      onConfirm: async () => {
+        setConfirmDialog(null);
+        const { error } = await supabase
+          .from("stores")
+          .delete()
+          .eq("id", storeId);
+        if (error)
+          return showToast("Error deleting store: " + error.message, "error");
+        setSelectedStore(null);
+        fetchStores();
+      },
+    });
   }
   async function fetchRoute(start, end) {
     try {
@@ -268,10 +284,18 @@ export default function Map({ darkMode, userId }) {
             );
 
             if (nearby) {
-              const proceed = confirm(
-                `There's already a store "${nearby.name}" within 20 meters. Add a new pin anyway?`,
-              );
-              if (!proceed) return;
+              setConfirmDialog({
+                title: "Nearby Store Found",
+                message: `There's already a store "${nearby.name}" within 20 meters. Add a new pin anyway?`,
+                confirmLabel: "Add Anyway",
+                onConfirm: () => {
+                  setConfirmDialog(null);
+                  setSearching(false);
+                  setPinPosition(latlng);
+                  setShowModal(true);
+                },
+              });
+              return;
             }
 
             setSearching(false);
@@ -344,7 +368,8 @@ export default function Map({ darkMode, userId }) {
         <button
           onClick={() => {
             setSearching(false);
-            if (!userPosition) return alert("Waiting for your location...");
+            if (!userPosition)
+              return showToast("Waiting for your location...", "info");
             const nearby = stores.find(
               (store) =>
                 getDistanceMeters(
@@ -355,10 +380,17 @@ export default function Map({ darkMode, userId }) {
                 ) < 20,
             );
             if (nearby) {
-              const proceed = confirm(
-                `There's already a store "${nearby.name}" within 20 meters. Add a new pin anyway?`,
-              );
-              if (!proceed) return;
+              setConfirmDialog({
+                title: "Nearby Store Found",
+                message: `There's already a store "${nearby.name}" within 20 meters. Add a new pin anyway?`,
+                confirmLabel: "Add Anyway",
+                onConfirm: () => {
+                  setConfirmDialog(null);
+                  setPinPosition(userPosition);
+                  setShowModal(true);
+                },
+              });
+              return;
             }
             setPinPosition(userPosition);
             setShowModal(true);
@@ -444,6 +476,17 @@ export default function Map({ darkMode, userId }) {
         <Dashboard onClose={() => setShowDashboard(false)} userId={userId} />
       )}
       {showBasket && <Basket onClose={() => setShowBasket(false)} />}
+
+      {confirmDialog && (
+        <ConfirmDialog
+          title={confirmDialog.title}
+          message={confirmDialog.message}
+          confirmLabel={confirmDialog.confirmLabel}
+          danger={confirmDialog.danger}
+          onConfirm={confirmDialog.onConfirm}
+          onCancel={() => setConfirmDialog(null)}
+        />
+      )}
     </div>
   );
 }

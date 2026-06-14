@@ -3,6 +3,7 @@ import Map from "./components/Map";
 import LoadingScreen from "./components/LoadingScreen";
 import Login from "./components/Login";
 import { supabase } from "./lib/supabase";
+import Toast from "./components/Toast";
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -47,6 +48,7 @@ function App() {
       style={{ width: "100vw", height: "100vh" }}
       className="flex flex-col dark:bg-gray-900"
     >
+      <Toast />
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 shadow-sm z-1000 relative">
         <div className="flex items-center gap-2">
