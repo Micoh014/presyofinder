@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import Map from "./components/Map";
+import LoadingScreen from "./components/LoadingScreen";
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (darkMode) {
@@ -11,6 +13,13 @@ function App() {
       document.documentElement.classList.remove("dark");
     }
   }, [darkMode]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1200);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) return <LoadingScreen />;
 
   return (
     <div
@@ -28,7 +37,6 @@ function App() {
             <p className="text-xs text-gray-400">Your personal price map</p>
           </div>
         </div>
-
         <button
           onClick={() => setDarkMode(!darkMode)}
           className={`relative w-16 h-8 rounded-full transition-colors duration-300 flex items-center px-1 ${

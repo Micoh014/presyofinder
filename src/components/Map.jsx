@@ -33,7 +33,7 @@ function LocationMarker({ onLocationFound }) {
         map.removeLayer(marker);
       }
       marker = L.circleMarker(e.latlng, {
-        radius: 10,
+        radius: 8,
         fillColor: "#3b82f6",
         color: "#ffffff",
         weight: 2,
