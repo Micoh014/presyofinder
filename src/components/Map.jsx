@@ -148,6 +148,7 @@ export default function Map({ darkMode }) {
   const mapRef = useRef(null);
   const [trailTarget, setTrailTarget] = useState(null);
   const [sortMode, setSortMode] = useState("price-asc");
+  const [trailRoute, setTrailRoute] = useState(null);
 
   useEffect(() => {
     fetchStores();
@@ -174,6 +175,7 @@ export default function Map({ darkMode }) {
     setSearchResults([]);
     setSearching(false);
     setTrailTarget(null);
+    setTrailTarget(null);
   }
   function handleRecenter() {
     if (!userPosition || !mapRef.current) return;
@@ -186,6 +188,24 @@ export default function Map({ darkMode }) {
     setSelectedStore(null);
     fetchStores();
   }
+  async function fetchRoute(start, end) {
+    try {
+      const url = `https://router.project-osrm.org/route/v1/foot/${start.lng},${start.lat};${end.longitude},${end.latitude}?overview=full&geometries=geojson`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.routes && data.routes[0]) {
+        const coords = data.routes[0].geometry.coordinates.map(([lng, lat]) => [
+          lat,
+          lng,
+        ]);
+        setTrailRoute(coords);
+      }
+    } catch (err) {
+      console.error("Routing error:", err);
+      setTrailRoute(null);
+    }
+  }
+
   return (
     <div className="relative w-full h-full">
       <MapContainer
@@ -253,36 +273,28 @@ export default function Map({ darkMode }) {
               </Popup>
             </Marker>
           ))}
-
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 w-full overflow-x-auto px-4 z-1000">
-          <div className="flex gap-2 w-max mx-auto">
-            {STORE_TYPE_FILTERS.map((f) => (
-              <button
-                key={f.value}
-                onClick={() => setActiveFilter(f.value)}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-md transition-colors ${
-                  activeFilter === f.value
-                    ? "bg-green-500 text-white"
-                    : "bg-white text-gray-600"
-                }`}
-              >
-                {f.icon} {f.label}
-              </button>
-            ))}
-
-            {trailTarget && userPosition && (
-              <Polyline
-                positions={[
-                  [userPosition.lat, userPosition.lng],
-                  [trailTarget.latitude, trailTarget.longitude],
-                ]}
-                pathOptions={{ color: "#3b82f6", weight: 3, dashArray: "8, 8" }}
-              />
-            )}
-          </div>
-        </div>
       </MapContainer>
 
+      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-full overflow-x-auto px-4 z-1000">
+        <div className="flex gap-2 w-max mx-auto">
+          {STORE_TYPE_FILTERS.map((f) => (
+            <button
+              key={f.value}
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveFilter(f.value);
+              }}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-md transition-colors ${
+                activeFilter === f.value
+                  ? "bg-green-500 text-white"
+                  : "bg-white text-gray-600"
+              }`}
+            >
+              {f.icon} {f.label}
+            </button>
+          ))}
+        </div>
+      </div>
       <button
         onClick={(e) => {
           e.stopPropagation();
@@ -354,6 +366,18 @@ export default function Map({ darkMode }) {
         />
       )}
 
+      {trailTarget && userPosition && (
+        <Polyline
+          positions={
+            trailRoute || [
+              [userPosition.lat, userPosition.lng],
+              [trailTarget.latitude, trailTarget.longitude],
+            ]
+          }
+          pathOptions={{ color: "#3b82f6", weight: 3, dashArray: "8, 8" }}
+        />
+      )}
+
       <SearchBar
         onResults={handleSearchResults}
         onClear={handleSearchClear}
@@ -374,6 +398,7 @@ export default function Map({ darkMode }) {
           onSelectStore={(store) => {
             setTrailTarget(store);
             setSearching(false);
+            if (userPosition) fetchRoute(userPosition, store);
             if (mapRef.current) {
               mapRef.current.flyTo([store.latitude, store.longitude], 16);
             }

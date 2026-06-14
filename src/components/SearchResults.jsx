@@ -34,8 +34,10 @@ export default function SearchResults({
     <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-1000 w-[90%] max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-lg max-h-64 overflow-y-auto">
       <div className="p-3 border-b border-gray-100 dark:border-gray-700">
         <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-          {results.length} result{results.length > 1 ? "s" : ""} — sorted
-          cheapest first
+          {results.length} result{results.length > 1 ? "s" : ""} — sorted by{" "}
+          {sortMode === "price-asc" && "cheapest first"}
+          {sortMode === "price-desc" && "most expensive first"}
+          {sortMode === "distance" && "nearest first"}
         </p>
       </div>
 

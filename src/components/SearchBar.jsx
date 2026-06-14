@@ -90,7 +90,10 @@ export default function SearchBar({
 
         {/* Sort Button */}
         <button
-          onClick={cycleSortMode}
+          onClick={(e) => {
+            e.stopPropagation();
+            cycleSortMode();
+          }}
           className="bg-white dark:bg-gray-800 shadow-lg rounded-full w-12 h-12 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-green-500 transition-colors text-lg"
           title={
             sortMode === "price-asc"
