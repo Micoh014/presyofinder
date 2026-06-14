@@ -4,12 +4,26 @@ import LoadingScreen from "./components/LoadingScreen";
 import Login from "./components/Login";
 import { supabase } from "./lib/supabase";
 import Toast from "./components/Toast";
+import Onboarding from "./components/Onboarding";
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    if (session) {
+      const seen = localStorage.getItem("presyofinder_onboarding_seen");
+      if (!seen) setShowOnboarding(true);
+    }
+  }, [session]);
+
+  function handleOnboardingDone() {
+    localStorage.setItem("presyofinder_onboarding_seen", "true");
+    setShowOnboarding(false);
+  }
 
   useEffect(() => {
     if (darkMode) {
@@ -42,6 +56,7 @@ function App() {
   if (loading || checkingAuth) return <LoadingScreen />;
 
   if (!session) return <Login />;
+  if (showOnboarding) return <Onboarding onDone={handleOnboardingDone} />;
 
   return (
     <div

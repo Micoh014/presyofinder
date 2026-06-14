@@ -438,12 +438,23 @@ export default function Map({ darkMode, userId }) {
           pathOptions={{ color: "#3b82f6", weight: 3, dashArray: "8, 8" }}
         />
       )}
-      {storesLoading && stores.length === 0 && (
-        <div className="absolute top-4 left-4 z-1000 bg-white dark:bg-gray-800 px-3 py-2 rounded-full shadow-lg flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-          <div className="w-3 h-3 border-2 border-green-200 border-t-green-500 rounded-full animate-spin"></div>
-          Loading stores...
-        </div>
-      )}
+      {!storesLoading &&
+        stores.filter((s) => activeFilter === "all" || s.type === activeFilter)
+          .length === 0 && (
+          <div className="absolute inset-0 z-999 flex items-center justify-center pointer-events-none px-6">
+            <div className="bg-white/95 dark:bg-gray-800/95 rounded-2xl px-6 py-4 shadow-lg text-center max-w-xs">
+              <p className="text-2xl mb-2">📍</p>
+              <p className="font-semibold text-gray-800 dark:text-white text-sm">
+                No stores yet
+              </p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                {activeFilter === "all"
+                  ? 'Tap anywhere on the map to drop your first pin, or use the "+ Drop Pin" button below.'
+                  : `No ${activeFilter} stores yet. Try a different filter or add one!`}
+              </p>
+            </div>
+          </div>
+        )}
       <SearchBar
         onResults={handleSearchResults}
         onClear={handleSearchClear}
