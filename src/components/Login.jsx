@@ -8,6 +8,21 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [showReset, setShowReset] = useState(false);
+
+  async function handleResetPassword() {
+    if (!email.trim()) {
+      setError("Please enter your email first.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    setMessage("");
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    setLoading(false);
+    if (error) return setError(error.message);
+    setMessage("Password reset link sent! Check your email.");
+  }
 
   async function handleSubmit() {
     if (!email.trim() || !password.trim()) {
@@ -82,6 +97,14 @@ export default function Login() {
           {isSignUp
             ? "Already have an account? Log in"
             : "Don't have an account? Sign up"}
+          {!isSignUp && (
+            <button
+              onClick={handleResetPassword}
+              className="w-full text-xs text-gray-400 dark:text-gray-500"
+            >
+              Forgot password?
+            </button>
+          )}
         </button>
       </div>
     </div>

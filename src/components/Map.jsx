@@ -158,12 +158,14 @@ export default function Map({ darkMode, userId }) {
   const [trailTarget, setTrailTarget] = useState(null);
   const [sortMode, setSortMode] = useState("price-asc");
   const [trailRoute, setTrailRoute] = useState(null);
+  const [storesLoading, setStoresLoading] = useState(true);
 
   useEffect(() => {
     if (userId) fetchStores();
   }, [userId]);
 
   async function fetchStores() {
+    setStoresLoading(true);
     const { data } = await supabase
       .from("stores")
       .select("*")
@@ -403,7 +405,12 @@ export default function Map({ darkMode, userId }) {
           pathOptions={{ color: "#3b82f6", weight: 3, dashArray: "8, 8" }}
         />
       )}
-
+      {storesLoading && stores.length === 0 && (
+        <div className="absolute top-4 left-4 z-[1000] bg-white dark:bg-gray-800 px-3 py-2 rounded-full shadow-lg flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+          <div className="w-3 h-3 border-2 border-green-200 border-t-green-500 rounded-full animate-spin"></div>
+          Loading stores...
+        </div>
+      )}
       <SearchBar
         onResults={handleSearchResults}
         onClear={handleSearchClear}
