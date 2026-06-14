@@ -7,6 +7,7 @@ export default function SearchBar({
   onReshow,
   userPosition,
   getDistance,
+  onSortModeChange,
 }) {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
@@ -57,6 +58,7 @@ export default function SearchBar({
     const currentIndex = modes.indexOf(sortMode);
     const nextMode = modes[(currentIndex + 1) % modes.length];
     setSortMode(nextMode);
+    onSortModeChange(nextMode);
     if (query.trim()) handleSearch(query, nextMode);
   }
 
@@ -109,8 +111,8 @@ export default function SearchBar({
       {/* Sort label */}
       {query && (
         <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 ml-4">
-          {sortMode === "price-asc" && "↑ Cheapest first"}
-          {sortMode === "price-desc" && "↓ Most expensive first"}
+          {sortMode === "price-asc" && "↓ Cheapest first"}
+          {sortMode === "price-desc" && "↑ Most expensive first"}
           {sortMode === "distance" && "📍 Nearest first"}
         </p>
       )}

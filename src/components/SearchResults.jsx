@@ -12,6 +12,7 @@ export default function SearchResults({
   onSelectStore,
   userPosition,
   getDistance,
+  sortMode,
 }) {
   if (!results || results.length === 0)
     return (
@@ -57,9 +58,9 @@ export default function SearchResults({
               <p className="text-xs text-gray-400 dark:text-gray-500 capitalize">
                 {item.stores?.type}
               </p>
-              {userPosition && item.stores && (
+              {sortMode === "distance" && userPosition && item.stores && (
                 <p className="text-xs text-blue-400 dark:text-blue-300">
-                  📍{" "}
+                  📍
                   {formatDistance(
                     getDistance(
                       userPosition.lat,
@@ -78,17 +79,21 @@ export default function SearchResults({
               )}
             </div>
 
-            <div className="text-right">
-              <p
-                className={`font-bold text-lg ${isCheapest ? "text-green-500" : isMostExpensive ? "text-red-400" : "text-gray-700"}`}
-              >
-                ₱{parseFloat(item.price).toFixed(2)}
-              </p>
-              {isCheapest && <p className="text-xs text-green-400">Cheapest</p>}
-              {isMostExpensive && (
-                <p className="text-xs text-red-400">Most expensive</p>
-              )}
-            </div>
+            {sortMode !== "distance" && (
+              <div className="text-right">
+                <p
+                  className={`font-bold text-lg ${isCheapest ? "text-green-500" : isMostExpensive ? "text-red-400" : "text-gray-700"}`}
+                >
+                  ₱{parseFloat(item.price).toFixed(2)}
+                </p>
+                {isCheapest && (
+                  <p className="text-xs text-green-400">Cheapest</p>
+                )}
+                {isMostExpensive && (
+                  <p className="text-xs text-red-400">Most expensive</p>
+                )}
+              </div>
+            )}
           </button>
         );
       })}

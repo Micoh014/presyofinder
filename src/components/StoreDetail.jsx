@@ -42,8 +42,6 @@ export default function StoreDetail({ store, onClose, onDelete }) {
   const [editingItem, setEditingItem] = useState(null);
   const [editItemName, setEditItemName] = useState("");
   const [editItemPrice, setEditItemPrice] = useState("");
-  const [itemPhoto, setItemPhoto] = useState(null);
-  const [itemPhotoPreview, setItemPhotoPreview] = useState(null);
 
   useEffect(() => {
     fetchItems();

@@ -147,6 +147,7 @@ export default function Map({ darkMode }) {
   const [activeFilter, setActiveFilter] = useState("all");
   const mapRef = useRef(null);
   const [trailTarget, setTrailTarget] = useState(null);
+  const [sortMode, setSortMode] = useState("price-asc");
 
   useEffect(() => {
     fetchStores();
@@ -172,6 +173,7 @@ export default function Map({ darkMode }) {
   function handleSearchClear() {
     setSearchResults([]);
     setSearching(false);
+    setTrailTarget(null);
   }
   function handleRecenter() {
     if (!userPosition || !mapRef.current) return;
@@ -360,6 +362,7 @@ export default function Map({ darkMode }) {
         onReshow={() => {
           if (searchResults.length > 0) setSearching(true);
         }}
+        onSortModeChange={setSortMode}
       />
 
       {searching && searchResults.length > 0 && (
@@ -367,6 +370,7 @@ export default function Map({ darkMode }) {
           results={searchResults}
           userPosition={userPosition}
           getDistance={getDistanceMeters}
+          sortMode={sortMode}
           onSelectStore={(store) => {
             setTrailTarget(store);
             setSearching(false);
