@@ -171,6 +171,7 @@ export default function Map({ darkMode, userId }) {
       .select("*")
       .eq("user_id", userId);
     if (data) setStores(data);
+    setStoresLoading(false);
   }
 
   async function handleSaveStore(storeData) {
@@ -406,7 +407,7 @@ export default function Map({ darkMode, userId }) {
         />
       )}
       {storesLoading && stores.length === 0 && (
-        <div className="absolute top-4 left-4 z-[1000] bg-white dark:bg-gray-800 px-3 py-2 rounded-full shadow-lg flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+        <div className="absolute top-4 left-4 z-1000 bg-white dark:bg-gray-800 px-3 py-2 rounded-full shadow-lg flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
           <div className="w-3 h-3 border-2 border-green-200 border-t-green-500 rounded-full animate-spin"></div>
           Loading stores...
         </div>
@@ -439,7 +440,9 @@ export default function Map({ darkMode, userId }) {
           }}
         />
       )}
-      {showDashboard && <Dashboard onClose={() => setShowDashboard(false)} />}
+      {showDashboard && (
+        <Dashboard onClose={() => setShowDashboard(false)} userId={userId} />
+      )}
       {showBasket && <Basket onClose={() => setShowBasket(false)} />}
     </div>
   );

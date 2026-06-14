@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import ExportData from "../components/ExportData";
 
-export default function Dashboard({ onClose }) {
+export default function Dashboard({ onClose, userId }) {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -76,12 +77,15 @@ export default function Dashboard({ onClose }) {
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
           📊 Dashboard
         </h1>
-        <button
-          onClick={onClose}
-          className="text-gray-400 dark:text-gray-500 text-2xl"
-        >
-          &times;
-        </button>
+        <div className="flex items-center gap-3">
+          <ExportData userId={userId} />
+          <button
+            onClick={onClose}
+            className="text-gray-400 dark:text-gray-500 text-2xl"
+          >
+            &times;
+          </button>
+        </div>
       </div>
 
       {loading ? (
