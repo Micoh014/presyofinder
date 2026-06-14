@@ -23,11 +23,16 @@ function LocationMarker({ onLocationFound }) {
   const map = useMap();
 
   useEffect(() => {
+    let marker = null;
     map.locate({ setView: true, maxZoom: 16 });
 
     map.on("locationfound", (e) => {
       onLocationFound(e.latlng);
-      L.circleMarker(e.latlng, {
+
+      if (marker) {
+        map.removeLayer(marker);
+      }
+      marker = L.circleMarker(e.latlng, {
         radius: 10,
         fillColor: "#3b82f6",
         color: "#ffffff",
@@ -39,8 +44,12 @@ function LocationMarker({ onLocationFound }) {
     map.on("locationerror", () => {
       alert("Could not get your location. Please allow location access.");
     });
+    return () => {
+      if (marker) {
+        map.removeLayer(marker);
+      }
+    };
   }, [map]);
-
   return null;
 }
 
@@ -211,6 +220,13 @@ export default function Map({ darkMode }) {
       <MapContainer
         center={[14.5995, 120.9842]}
         zoom={13}
+        minZoom={2}
+        maxBounds={[
+          [-90, -180],
+          [90, 180],
+        ]}
+        maxBoundsViscosity={1.0}
+        worldCopyJump={false}
         style={{ width: "100%", height: "100%" }}
       >
         <TileLayer
@@ -220,6 +236,7 @@ export default function Map({ darkMode }) {
               ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
               : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           }
+          noWrap={true}
         />
         <LocationMarker onLocationFound={setUserPosition} />
         <MapRefSetter mapRef={mapRef} />
