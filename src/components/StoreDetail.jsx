@@ -360,7 +360,7 @@ export default function StoreDetail({ store, onClose, onDelete, userId }) {
                       </button>
                       <button
                         onClick={() => handleDeleteItem(item.id)}
-                        className="text-red-300 dark:text-red-400 hover:text-red-500 text-lg leading-none"
+                        className="text-red-300 dark:text-red-400 hover:text-red-500 text-lg leading-none p-2 -m-2"
                       >
                         &times;
                       </button>

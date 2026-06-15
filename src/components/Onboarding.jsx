@@ -35,7 +35,7 @@ export default function Onboarding({ onDone }) {
   const slide = SLIDES[step];
 
   return (
-    <div className="fixed inset-0 bg-white dark:bg-gray-900 flex flex-col items-center justify-center px-8 z-[9999]">
+    <div className="fixed inset-0 bg-white dark:bg-gray-900 flex flex-col items-center justify-center px-8 z-9999">
       <div className="text-6xl mb-6">{slide.icon}</div>
       <h2 className="text-xl font-bold text-gray-800 dark:text-white text-center mb-2">
         {slide.title}

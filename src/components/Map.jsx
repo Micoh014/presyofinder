@@ -358,7 +358,7 @@ export default function Map({ darkMode, userId }) {
       </button>
 
       {/* Bottom Bar */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-1000 flex gap-3">
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-1000 flex gap-3 safe-bottom">
         <button
           onClick={() => setShowDashboard(true)}
           className="flex items-center gap-2 bg-white text-gray-700 px-5 py-3 rounded-full shadow-lg font-semibold text-sm border border-gray-100"
