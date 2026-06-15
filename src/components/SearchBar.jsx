@@ -71,6 +71,7 @@ export default function SearchBar({
           <input
             className="w-full bg-white shadow-lg rounded-full px-5 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-green-400 text-gray-800 placeholder-gray-400"
             placeholder="Search item (e.g. Rice, Egg...)"
+            aria-label="Search for an item"
             value={query}
             onChange={(e) => handleSearch(e.target.value)}
             onFocus={onReshow}
@@ -96,6 +97,7 @@ export default function SearchBar({
             e.stopPropagation();
             cycleSortMode();
           }}
+          aria-label={`Sort results: ${sortMode === "price-asc" ? "cheapest first" : sortMode === "price-desc" ? "most expensive first" : "nearest first"}`}
           className="bg-white dark:bg-gray-800 shadow-lg rounded-full w-12 h-12 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-green-500 transition-colors text-lg"
           title={
             sortMode === "price-asc"

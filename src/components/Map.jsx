@@ -335,6 +335,8 @@ export default function Map({ darkMode, userId }) {
                 e.stopPropagation();
                 setActiveFilter(f.value);
               }}
+              aria-label={`Filter by ${f.label}`}
+              aria-pressed={activeFilter === f.value}
               className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-md transition-colors ${
                 activeFilter === f.value
                   ? "bg-green-500 text-white"
@@ -351,6 +353,8 @@ export default function Map({ darkMode, userId }) {
           e.stopPropagation();
           handleRecenter();
         }}
+        aria-label="Recenter map to my location"
+        className="absolute top-4 right-4 z-1000"
         className="absolute top-4 right-4 z-1000 bg-white dark:bg-gray-800 text-blue-500 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-xl"
         title="Recenter to my location"
       >
@@ -361,6 +365,7 @@ export default function Map({ darkMode, userId }) {
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-1000 flex gap-3 safe-bottom">
         <button
           onClick={() => setShowDashboard(true)}
+          aria-label="Open dashboard statistics"
           className="flex items-center gap-2 bg-white text-gray-700 px-5 py-3 rounded-full shadow-lg font-semibold text-sm border border-gray-100"
         >
           📊 Stats
@@ -395,12 +400,14 @@ export default function Map({ darkMode, userId }) {
             setPinPosition(userPosition);
             setShowModal(true);
           }}
+          aria-label="Drop a pin at my curreny location"
           className="flex items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-full shadow-lg font-bold text-sm"
         >
           + Drop Pin
         </button>
         <button
           onClick={() => setShowBasket(true)}
+          aria-label="Open basket finder"
           className="flex items-center gap-2 bg-white text-gray-700 px-5 py-3 rounded-full shadow-lg font-semibold text-sm border border-gray-100"
         >
           🧺 Basket

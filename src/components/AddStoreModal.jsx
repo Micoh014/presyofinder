@@ -71,6 +71,7 @@ export default function AddStoreModal({ position, onSave, onClose }) {
           </h2>
           <button
             onClick={onClose}
+            aria-label="Close"
             className="text-gray-400 dark:text-gray-500 text-2xl"
           >
             &times;
@@ -90,6 +91,7 @@ export default function AddStoreModal({ position, onSave, onClose }) {
                 setPhoto(null);
                 setPreview(null);
               }}
+              aria-label="Remove photo"
               className="absolute top-2 right-2 bg-black/50 text-white text-sm w-7 h-7 rounded-full flex items-center justify-center"
             >
               &times;
@@ -131,6 +133,7 @@ export default function AddStoreModal({ position, onSave, onClose }) {
               <button
                 key={t.value}
                 onClick={() => setType(t.value)}
+                aria-label={`Select ${t.label}`}
                 className={`px-3 py-2 rounded-xl text-sm font-medium border transition-colors ${
                   type === t.value
                     ? "bg-green-500 text-white border-green-500"

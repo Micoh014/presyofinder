@@ -152,12 +152,14 @@ export default function StoreDetail({ store, onClose, onDelete, userId }) {
               <div className="flex gap-2">
                 <button
                   onClick={() => onDelete(store.id)}
+                  aria-label="Delete store"
                   className="bg-red-500/80 text-white text-xs px-3 py-1 rounded-full"
                 >
                   Delete
                 </button>
                 <button
                   onClick={onClose}
+                  aria-label="Close"
                   className="bg-white/20 text-white text-xl w-8 h-8 rounded-full flex items-center justify-center"
                 >
                   &times;
@@ -216,18 +218,21 @@ export default function StoreDetail({ store, onClose, onDelete, userId }) {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setEditing(true)}
+                    aria-label="Edit store"
                     className="text-blue-400 dark:text-blue-300 text-sm font-medium"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => onDelete(store.id)}
+                    aria-label="Delete store"
                     className="text-red-400 dark:text-red-300 text-sm font-medium"
                   >
                     Delete
                   </button>
                   <button
                     onClick={onClose}
+                    aria-label="Close"
                     className="text-gray-400 dark:text-gray-500 text-2xl leading-none"
                   >
                     &times;
@@ -354,12 +359,14 @@ export default function StoreDetail({ store, onClose, onDelete, userId }) {
                           setEditItemName(item.name);
                           setEditItemPrice(item.price);
                         }}
+                        aria-label={`Edit ${item.name}`}
                         className="text-blue-300 dark:text-blue-400 hover:text-blue-500 text-xs font-medium"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDeleteItem(item.id)}
+                        aria-label={`Delete ${item.name}`}
                         className="text-red-300 dark:text-red-400 hover:text-red-500 text-lg leading-none p-2 -m-2"
                       >
                         &times;

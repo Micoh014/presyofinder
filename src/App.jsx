@@ -79,11 +79,16 @@ function App() {
           <button
             onClick={() => supabase.auth.signOut()}
             className="text-sm text-gray-400 dark:text-gray-500"
+            aria-label="Log out"
           >
             Logout
           </button>
           <button
             onClick={() => setDarkMode(!darkMode)}
+            aria-label={
+              darkMode ? "Switch to light mode" : "Switch to dark mode"
+            }
+            aria-pressed={darkMode}
             className={`relative w-16 h-8 rounded-full transition-colors duration-300 flex items-center px-1 ${
               darkMode ? "bg-gray-700" : "bg-yellow-100"
             }`}
