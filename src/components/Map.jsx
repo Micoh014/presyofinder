@@ -237,7 +237,7 @@ export default function Map({ darkMode, userId }) {
 
         {stores
           .filter(
-            (store) => activeFilter === "all" || store.type === activeFilter,
+            (store) => activeFilter === "all" || store.type === activefilter,
           )
           .map((store) => (
             <Marker
@@ -256,6 +256,21 @@ export default function Map({ darkMode, userId }) {
             </Marker>
           ))}
       </MapContainer>
+
+      <div className="sr-only" aria-live="polite">
+        <h2>Stores on map</h2>
+        <ul>
+          {stores
+            .filter(
+              (store) => activeFilter === "all" || store.type === activeFilter,
+            )
+            .map((store) => (
+              <li key={store.id}>
+                {store.name}, {store.type}
+              </li>
+            ))}
+        </ul>
+      </div>
 
       <div className="absolute top-20 left-1/2 -translate-x-1/2 w-full overflow-x-auto px-4 z-1000">
         <div className="flex gap-2 w-max mx-auto">

@@ -21,7 +21,12 @@ export default function Toast() {
   };
 
   return (
-    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-9999 flex flex-col gap-2 items-center pointer-events-none">
+    <div
+      className="fixed top-4 left-1/2 -translate-x-1/2 z-9999 flex flex-col gap-2 items-center pointer-events-none"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    >
       {toasts.map((toast) => (
         <div
           key={toast.id}
