@@ -156,7 +156,7 @@ export default function StoreDetail({ store, onClose, onDelete, userId }) {
                 >
                   {STORE_ICONS[store.type] || "📍"} {store.name}
                 </h2>
-                <p className="text-sm text-gray-400 dark:text-gray-500capitalize">
+                <p className="text-sm text-gray-500 dark:text-gray-400 not-[]:capitalize">
                   {store.type}
                 </p>
               </div>
@@ -353,7 +353,7 @@ export default function StoreDetail({ store, onClose, onDelete, userId }) {
                       <p className="font-medium text-gray-800 dark:text-gray-100 text-sm">
                         {item.name}
                       </p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         {new Date(item.recorded_at).toLocaleDateString("en-PH")}
                       </p>
                       {isStale(item.recorded_at) && (

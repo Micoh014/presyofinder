@@ -92,7 +92,7 @@ export default function Dashboard({ onClose, userId }) {
           <ExportData userId={userId} />
           <button
             onClick={onClose}
-            className="text-gray-400 dark:text-gray-500 text-2xl"
+            className="text-gray-500 dark:text-gray-400 text-2xl"
           >
             &times;
           </button>
@@ -148,7 +148,7 @@ export default function Dashboard({ onClose, userId }) {
               💰 Your Cheapest Finds
             </h2>
             {stats.cheapestFinds.length === 0 ? (
-              <p className="text-sm text-gray-400 dark:text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 No items logged yet.
               </p>
             ) : (
@@ -162,7 +162,7 @@ export default function Dashboard({ onClose, userId }) {
                       <p className="font-medium text-gray-800 dark:text-gray-100 capitalize">
                         {find.name}
                       </p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         {find.store}
                       </p>
                     </div>
@@ -181,7 +181,7 @@ export default function Dashboard({ onClose, userId }) {
               📍 Recently Added Stores
             </h2>
             {stats.recentStores.length === 0 ? (
-              <p className="text-sm text-gray-400 dark:text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 No stores yet.
               </p>
             ) : (
@@ -194,7 +194,7 @@ export default function Dashboard({ onClose, userId }) {
                     <p className="font-medium text-gray-800 dark:text-gray-100">
                       {store.name}
                     </p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 capitalize">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
                       {store.type}
                     </p>
                   </div>

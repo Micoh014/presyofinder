@@ -59,7 +59,7 @@ export default function SearchResults({
               <p className="font-medium text-gray-800 dark:text-white">
                 {item.stores?.name}
               </p>
-              <p className="text-xs text-gray-400 dark:text-gray-500 capitalize">
+              <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
                 {item.stores?.type}
               </p>
               {sortMode === "distance" && userPosition && item.stores && (

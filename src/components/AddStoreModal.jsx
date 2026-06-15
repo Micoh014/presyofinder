@@ -111,7 +111,7 @@ export default function AddStoreModal({ position, onSave, onClose }) {
         ) : (
           <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl cursor-pointer hover:border-green-400 transition-colors">
             <span className="text-3xl mb-1">📷</span>
-            <span className="text-sm text-gray-400 dark:text-gray-500">
+            <span className="text-sm text-gray-500 dark:text-gray-400">
               Tap to add a store photo
             </span>
             <input
