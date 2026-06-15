@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import ExportData from "../components/ExportData";
+import { useModalKeyboard } from "../lib/useModalKeyboard";
 
 export default function Dashboard({ onClose, userId }) {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const modalRef = useModalKeyboard(onClose);
 
   useEffect(() => {
     fetchStats();
@@ -71,10 +73,19 @@ export default function Dashboard({ onClose, userId }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-white dark:bg-gray-900 z-2000 overflow-y-auto">
+    <div
+      ref={modalRef}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="dashboard-title"
+      className="fixed inset-0 bg-white dark:bg-gray-900 z-2000 overflow-y-auto"
+    >
       {/* Header */}
       <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 dark:border-gray-700">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+        <h1
+          id="dashboard-title"
+          className="text-2xl font-bold text-gray-800 dark:text-white"
+        >
           📊 Dashboard
         </h1>
         <div className="flex items-center gap-3">

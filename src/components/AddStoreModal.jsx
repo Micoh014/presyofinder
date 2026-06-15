@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
+import { useModalKeyboard } from "../lib/useModalKeyboard";
 
 const STORE_TYPES = [
   { value: "sari-sari", label: "🏪 Sari-sari Store" },
@@ -18,6 +19,7 @@ export default function AddStoreModal({ position, onSave, onClose }) {
   const [photo, setPhoto] = useState(null);
   const [preview, setPreview] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const modalRef = useModalKeyboard(onClose);
 
   function handlePhotoChange(e) {
     const file = e.target.files[0];
@@ -61,12 +63,21 @@ export default function AddStoreModal({ position, onSave, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-1000">
-      <div className="bg-white dark:bg-gray-800 w-full max-w-md rounded-t-3xl p-6 space-y-4">
+      <div
+        ref={modalRef}
+        role="Dialog"
+        aria-model="true"
+        aria-labelledby="add-store-title"
+        className="bg-white dark:bg-gray-800 w-full max-w-md rounded-t-3xl p-6 space-y-4"
+      >
         {/* Handle bar */}
         <div className="w-10 h-1 bg-gray-200 dark:bg-gray-600 rounded-full mx-auto -mt-1 mb-2" />
 
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+          <h2
+            id="add-store-title"
+            className="text-xl font-bold text-gray-800 dark:text-white"
+          >
             📍 Add Store
           </h2>
           <button

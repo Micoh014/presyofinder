@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
+import { useModalKeyboard } from "../lib/useModalKeyboard";
 
 export default function Basket({ onClose }) {
   const [basketItems, setBasketItems] = useState([{ name: "" }]);
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
+  const modalRef = useModalKeyboard(onClose);
 
   function handleItemChange(index, value) {
     const updated = [...basketItems];
@@ -94,9 +96,18 @@ export default function Basket({ onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-1000">
-      <div className="bg-white dark:bg-gray-800 w-full max-w-md rounded-t-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-model="ture"
+        aria-labelledby="basket-title"
+        className="bg-white dark:bg-gray-800 w-full max-w-md rounded-t-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto"
+      >
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+          <h2
+            id="basket-title"
+            className="text-xl font-bold text-gray-800 dark:text-white"
+          >
             🧺 Basket Finder
           </h2>
           <button

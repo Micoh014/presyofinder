@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Tesseract from "tesseract.js";
+import { useModalKeyboard } from "../lib/useModalKeyboard";
 
 export default function ReceiptScanner({ onItemsFound, onClose }) {
   const [image, setImage] = useState(null);
@@ -8,6 +9,7 @@ export default function ReceiptScanner({ onItemsFound, onClose }) {
   const [rawText, setRawText] = useState("");
   const [items, setItems] = useState([]);
   const [step, setStep] = useState("upload"); // upload → scanning → review
+  const modalRef = useModalKeyboard(onClose);
 
   function handleImageChange(e) {
     const file = e.target.files[0];
@@ -77,9 +79,17 @@ export default function ReceiptScanner({ onItemsFound, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-1000">
-      <div className="bg-white w-full max-w-md rounded-t-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="receipt-title"
+        className="bg-white w-full max-w-md rounded-t-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto"
+      >
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-800">🧾 Scan Receipt</h2>
+          <h2 id="receipt-title" className="text-xl font-bold text-gray-800">
+            🧾 Scan Receipt
+          </h2>
           <button onClick={onClose} className="text-gray-400 text-2xl">
             &times;
           </button>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import ReceiptScanner from "./ReceiptScanner";
+import { useModalKeyboard } from "../lib/useModalKeyboard";
 
 const STORE_TYPES = [
   { value: "sari-sari", label: "🏪 Sari-sari Store" },
@@ -42,6 +43,7 @@ export default function StoreDetail({ store, onClose, onDelete, userId }) {
   const [editingItem, setEditingItem] = useState(null);
   const [editItemName, setEditItemName] = useState("");
   const [editItemPrice, setEditItemPrice] = useState("");
+  const modalRef = useModalKeyboard(onClose);
 
   useEffect(() => {
     fetchItems();
@@ -130,7 +132,13 @@ export default function StoreDetail({ store, onClose, onDelete, userId }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-1000">
-      <div className="bg-white dark:bg-gray-800 w-full max-w-md rounded-t-3xl max-h-[85vh] overflow-y-auto">
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-model="true"
+        aria-labelledby="store-detail-title"
+        className="bg-white dark:bg-gray-800 w-full max-w-md rounded-t-3xl max-h-[85vh] overflow-y-auto"
+      >
         {/* Store Photo */}
         {store.photo_url && (
           <div className="relative">
@@ -142,7 +150,10 @@ export default function StoreDetail({ store, onClose, onDelete, userId }) {
             <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent rounded-t-3xl" />
             <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
               <div>
-                <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+                <h2
+                  id="store-detail-title"
+                  className="text-xl font-bold text-gray-800 dark:text-white"
+                >
                   {STORE_ICONS[store.type] || "📍"} {store.name}
                 </h2>
                 <p className="text-sm text-gray-400 dark:text-gray-500capitalize">
@@ -208,7 +219,10 @@ export default function StoreDetail({ store, onClose, onDelete, userId }) {
             ) : (
               <div className="flex justify-between items-start">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-800">
+                  <h2
+                    id="store-detail-tile"
+                    className="text-xl font-bold text-gray-800"
+                  >
                     {STORE_ICONS[store.type] || "📍"} {store.name}
                   </h2>
                   <p className="text-sm text-gray-400 capitalize">
