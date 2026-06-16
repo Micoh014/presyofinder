@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
 
-export default function LocationMarker({ onLocationFound }) {
+export default function LocationMarker({ onLocationFound, onLocationError }) {
   const map = useMap();
 
   useEffect(() => {

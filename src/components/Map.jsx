@@ -7,6 +7,8 @@ import { getDistanceMeters } from "../lib/mapUtils";
 import { useStores } from "../hooks/useStores";
 import { useRoute } from "../hooks/useRoute";
 import { useSearch } from "../hooks/useSearch";
+import { useLocation } from "../hooks/useLocation";
+import { useConfirmDialog } from "../hooks/useConfirmDialog";
 
 import LocationMarker from "./map/LocationMarker";
 import MapClickHandler from "./map/MapClickHandler";
@@ -25,7 +27,7 @@ import Basket from "./Basket";
 import ConfirmDialog from "./ConfirmDialog";
 
 export default function Map({ darkMode, userId }) {
-  const [userPosition, setUserPosition] = useState(null);
+  const { userPosition, onLocationFound, onLocationError } = useLocation();
   const [pinPosition, setPinPosition] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedStore, setSelectedStore] = useState(null);
@@ -33,7 +35,7 @@ export default function Map({ darkMode, userId }) {
   const [showBasket, setShowBasket] = useState(false);
   const [activeFilter, setActiveFilter] = useState("all");
   const [trailTarget, setTrailTarget] = useState(null);
-  const [confirmDialog, setConfirmDialog] = useState(null);
+  const { confirmDialog, showConfirm, hideConfirm } = useConfirmDialog();
 
   const mapRef = useRef(null);
 
@@ -62,13 +64,13 @@ export default function Map({ darkMode, userId }) {
   }
 
   function handleDeleteStore(storeId) {
-    setConfirmDialog({
+    showConfirm({
       title: "Delete Store?",
       message:
         "This will also delete all items logged for this store. This cannot be undone.",
       danger: true,
       onConfirm: async () => {
-        setConfirmDialog(null);
+        hideConfirm();
         const success = await deleteStore(storeId);
         if (success) setSelectedStore(null);
       },
@@ -92,12 +94,12 @@ export default function Map({ darkMode, userId }) {
     );
 
     if (nearby) {
-      setConfirmDialog({
+      showConfirm({
         title: "Nearby Store Found",
         message: `There's already a store "${nearby.name}" within 20 meters. Add a new pin anyway?`,
         confirmLabel: "Add Anyway",
         onConfirm: () => {
-          setConfirmDialog(null);
+          hideConfirm();
           hideSearch();
           setPinPosition(latlng);
           setShowModal(true);
@@ -126,12 +128,12 @@ export default function Map({ darkMode, userId }) {
     );
 
     if (nearby) {
-      setConfirmDialog({
+      showConfirm({
         title: "Nearby Store Found",
         message: `There's already a store "${nearby.name}" within 20 meters. Add a new pin anyway?`,
         confirmLabel: "Add Anyway",
         onConfirm: () => {
-          setConfirmDialog(null);
+          hideConfirm();
           setPinPosition(userPosition);
           setShowModal(true);
         },
@@ -186,7 +188,10 @@ export default function Map({ darkMode, userId }) {
           }
           noWrap={true}
         />
-        <LocationMarker onLocationFound={setUserPosition} />
+        <LocationMarker
+          onLocationFound={onLocationFound}
+          onLocationError={onLocationError}
+        />
         <MapRefSetter mapRef={mapRef} />
         <MapClickHandler onMapClick={handleMapClick} />
         <StoreMarkers
@@ -318,7 +323,7 @@ export default function Map({ darkMode, userId }) {
           confirmLabel={confirmDialog.confirmLabel}
           danger={confirmDialog.danger}
           onConfirm={confirmDialog.onConfirm}
-          onCancel={() => setConfirmDialog(null)}
+          onCancel={hideConfirm}
         />
       )}
     </div>
