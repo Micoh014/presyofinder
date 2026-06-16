@@ -18,7 +18,7 @@ function FilterBar({ activeFilter, onFilterChange }) {
           display: "inline-flex",
           flexDirection: "row",
           gap: "8px",
-          padding: "2px 4px",
+          padding: "4px 2px 6px 2px",
         }}
       >
         {STORE_TYPE_FILTERS.map((f) => (
