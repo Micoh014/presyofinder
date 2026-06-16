@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
 import { showToast } from '../lib/toast'
+import { getItems, insertItem, updateItemById, deleteItemById } from '../lib/db'
 
 export function useItems(storeId, userId) {
   const [items, setItems] = useState([])
@@ -10,21 +10,17 @@ export function useItems(storeId, userId) {
   }, [storeId])
 
   async function fetchItems() {
-    const { data } = await supabase
-      .from('items')
-      .select('*')
-      .eq('store_id', storeId)
-      .order('recorded_at', { ascending: false })
+    const { data } = await getItems(storeId)
     if (data) setItems(data)
   }
 
   async function addItem(name, price) {
-    const { error } = await supabase.from('items').insert([{
+    const { error } = await insertItem({
       store_id: storeId,
       name: name.trim(),
       price: parseFloat(price),
       user_id: userId,
-    }])
+    })
     if (error) {
       showToast('Error saving item: ' + error.message, 'error')
       return false
@@ -34,10 +30,11 @@ export function useItems(storeId, userId) {
   }
 
   async function updateItem(itemId, name, price) {
-    const { error } = await supabase
-      .from('items')
-      .update({ name: name.trim(), price: parseFloat(price), recorded_at: new Date().toISOString() })
-      .eq('id', itemId)
+    const { error } = await updateItemById(itemId, {
+      name: name.trim(),
+      price: parseFloat(price),
+      recorded_at: new Date().toISOString(),
+    })
     if (error) {
       showToast('Error updating item: ' + error.message, 'error')
       return false
@@ -47,7 +44,7 @@ export function useItems(storeId, userId) {
   }
 
   async function deleteItem(itemId) {
-    const { error } = await supabase.from('items').delete().eq('id', itemId)
+    const { error } = await deleteItemById(itemId)
     if (error) {
       showToast('Error deleting item: ' + error.message, 'error')
       return false
@@ -58,12 +55,12 @@ export function useItems(storeId, userId) {
 
   async function addItemsBatch(scannedItems) {
     for (const item of scannedItems) {
-      await supabase.from('items').insert([{
+      await insertItem({
         store_id: storeId,
         name: item.name,
         price: parseFloat(item.price),
         user_id: userId,
-      }])
+      })
     }
     await fetchItems()
   }

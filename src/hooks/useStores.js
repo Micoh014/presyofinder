@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
 import { showToast } from '../lib/toast'
+import { getStores, insertStore, deleteStoreById } from '../lib/db'
 
 export function useStores(userId) {
   const [stores, setStores] = useState([])
@@ -12,18 +12,13 @@ export function useStores(userId) {
 
   async function fetchStores() {
     setStoresLoading(true)
-    const { data } = await supabase
-      .from('stores')
-      .select('*')
-      .eq('user_id', userId)
+    const { data } = await getStores(userId)
     if (data) setStores(data)
     setStoresLoading(false)
   }
 
   async function saveStore(storeData) {
-    const { error } = await supabase
-      .from('stores')
-      .insert([{ ...storeData, user_id: userId }])
+    const { error } = await insertStore({ ...storeData, user_id: userId })
     if (error) {
       showToast('Error saving store: ' + error.message, 'error')
       return false
@@ -33,10 +28,7 @@ export function useStores(userId) {
   }
 
   async function deleteStore(storeId) {
-    const { error } = await supabase
-      .from('stores')
-      .delete()
-      .eq('id', storeId)
+    const { error } = await deleteStoreById(storeId)
     if (error) {
       showToast('Error deleting store: ' + error.message, 'error')
       return false

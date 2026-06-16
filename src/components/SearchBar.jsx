@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
+import { searchItemsByName } from "../lib/db";
 
 export default function SearchBar({
   onResults,
@@ -23,12 +24,11 @@ export default function SearchBar({
     }
 
     setLoading(true);
-    const { data } = await supabase
-      .from("items")
-      .select("*, stores(*)")
-      .eq("user_id", userId)
-      .ilike("name", `%${value}%`)
-      .order("price", { ascending: mode !== "price-desc" });
+    const { data } = await searchItemsByName(
+      userId,
+      value,
+      mode !== "price-desc",
+    );
     setLoading(false);
 
     if (!data) return;
