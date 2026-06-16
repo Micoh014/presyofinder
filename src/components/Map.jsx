@@ -16,11 +16,15 @@ import StoreMarkers from "./map/StoreMarkers";
 import FilterBar from "./map/FilterBar";
 import BottomBar from "./map/BottomBar";
 import TrailLine from "./map/TrailLine";
+
 import AddStoreModal from "./AddStoreModal";
 import StoreDetail from "./StoreDetail";
 import SearchBar from "./SearchBar";
 import SearchResults from "./SearchResults";
 import ConfirmDialog from "./ConfirmDialog";
+
+import Spinner from "./ui/Spinner";
+import EmptyState from "./ui/EmptyState";
 
 // Code-split heavy panels — only loaded when first opened
 const Dashboard = lazy(() => import("../pages/Dashboard"));
@@ -276,7 +280,7 @@ export default function Map({ darkMode, userId }) {
       {/* Loading */}
       {storesLoading && stores.length === 0 && (
         <div className="absolute top-4 left-4 z-1000 bg-white dark:bg-gray-800 px-3 py-2 rounded-full shadow-lg flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-          <div className="w-3 h-3 border-2 border-green-200 border-t-green-500 rounded-full animate-spin" />
+          <Spinner size="sm" />
           Loading stores...
         </div>
       )}
@@ -284,16 +288,15 @@ export default function Map({ darkMode, userId }) {
       {/* Empty state */}
       {!storesLoading && filteredStores.length === 0 && (
         <div className="absolute inset-0 z-999 flex items-center justify-center pointer-events-none px-6">
-          <div className="bg-white/95 dark:bg-gray-800/95 rounded-2xl px-6 py-4 shadow-lg text-center max-w-xs">
-            <p className="text-2xl mb-2">📍</p>
-            <p className="font-semibold text-gray-800 dark:text-white text-sm">
-              No stores yet
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              {activeFilter === "all"
-                ? 'Tap anywhere on the map or use the "+ Drop Pin" button below.'
-                : `No ${activeFilter} stores yet. Try a different filter or add one!`}
-            </p>
+          <div className="bg-white/95 dark:bg-gray-800/95 rounded-2xl px-6 py-4 shadow-lg max-w-xs">
+            <EmptyState
+              title="No stores yet"
+              description={
+                activeFilter === "all"
+                  ? 'Tap anywhere on the map or use the "+ Drop Pin" button below.'
+                  : `No ${activeFilter} stores yet. Try a different filter or add one!`
+              }
+            />
           </div>
         </div>
       )}
@@ -347,7 +350,7 @@ export default function Map({ darkMode, userId }) {
         <Suspense
           fallback={
             <div className="fixed inset-0 bg-white dark:bg-gray-900 flex items-center justify-center z-2000">
-              <div className="w-8 h-8 border-4 border-green-200 border-t-green-500 rounded-full animate-spin" />
+              <Spinner size="lg" />
             </div>
           }
         >
@@ -359,7 +362,7 @@ export default function Map({ darkMode, userId }) {
         <Suspense
           fallback={
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-1000">
-              <div className="w-8 h-8 border-4 border-green-200 border-t-green-500 rounded-full animate-spin" />
+              <Spinner size="lg" />
             </div>
           }
         >

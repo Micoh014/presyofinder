@@ -5,6 +5,8 @@ import StoreHeader from "./storeDetail/StoreHeader";
 import ItemForm from "./storeDetail/ItemForm";
 import ItemList from "./storeDetail/ItemList";
 import ReceiptScanner from "./ReceiptScanner";
+import Spinner from "./ui/Spinner";
+import EmptyState from "./ui/EmptyState";
 
 export default function StoreDetail({ store, onClose, onDelete, userId }) {
   const [showScanner, setShowScanner] = useState(false);
@@ -46,8 +48,8 @@ export default function StoreDetail({ store, onClose, onDelete, userId }) {
           <ItemForm onAdd={addItem} onScanReceipt={handleOpenScanner} />
 
           {itemsLoading && (
-            <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-4">
-              Loading items...
+            <p className=" text-center py-4">
+              <Spinner />
             </p>
           )}
 
@@ -58,9 +60,7 @@ export default function StoreDetail({ store, onClose, onDelete, userId }) {
           )}
 
           {!itemsLoading && !itemsError && items.length === 0 && (
-            <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-4">
-              No items yet — add one below.
-            </p>
+            <EmptyState description="No items yet - add one below." />
           )}
 
           <ItemList items={items} onUpdate={updateItem} onDelete={deleteItem} />
