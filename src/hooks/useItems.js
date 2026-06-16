@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { showToast } from '../lib/toast'
 import { getItems, insertItem, updateItemById, deleteItemById } from '../lib/db'
+import { isRateLimited } from '../lib/rateLimit'
+
 
 export function useItems(storeId, userId) {
   const [items, setItems] = useState([])
@@ -24,13 +26,10 @@ export function useItems(storeId, userId) {
   }
 
   async function addItem(name, price) {
-    const trimmed = name?.trim()
-    const parsed = parseFloat(price)
-
-    if (!trimmed) {
-      showToast('Item name is required.', 'error')
-      return false
-    }
+    if (isRateLimited('addItem', 1500)) {
+    showToast('Slow down — please wait before adding another item.', 'error')
+    return false
+  }
     if (isNaN(parsed) || parsed <= 0) {
       showToast('Enter a valid price greater than 0.', 'error')
       return false
@@ -77,12 +76,10 @@ export function useItems(storeId, userId) {
   }
 
   async function deleteItem(itemId) {
-    if (!itemId) return false
-    const { error } = await deleteItemById(itemId)
-    if (error) {
-      showToast('Error deleting item: ' + error.message, 'error')
-      return false
-    }
+    if (isRateLimited('deleteItem', 1000)) {
+    showToast('Too many requests — please wait.', 'error')
+    return false
+  }
     await fetchItems()
     return true
   }

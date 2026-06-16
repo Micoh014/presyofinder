@@ -5,6 +5,11 @@ export const TABLES = {
   ITEMS: 'items',
 }
 
+function sanitize(value) {
+  if (typeof value !== 'string') return value
+  return value.replace(/<[^>]*>/g, '').trim()
+}
+
 // Retries a Supabase call up to `attempts` times on network failure
 async function withRetry(fn, attempts = 3, delayMs = 800) {
   for (let i = 0; i < attempts; i++) {
@@ -30,13 +35,20 @@ export async function getStores(userId) {
 
 export async function insertStore(storeData) {
   return withRetry(() =>
-    supabase.from(TABLES.STORES).insert([storeData])
+    supabase.from(TABLES.STORES).insert([{
+      ...storeData,
+    name: sanitize (storeData.name),
+  type: sanitize (storeData.type),
+}])
   )
 }
 
 export async function updateStore(storeId, fields) {
+  const { user_id, ...safeFields } = fields
+  const sanitized = { ...safeFields }
+  if (safeFields.name) sanitized.name = sanitize (safeFields.name)
   return withRetry(() =>
-    supabase.from(TABLES.STORES).update(fields).eq('id', storeId)
+    supabase.from(TABLES.STORES).update(sanitized).eq('id', storeId)
   )
 }
 
@@ -58,13 +70,19 @@ export async function getItems(storeId) {
 
 export async function insertItem(itemData) {
   return withRetry(() =>
-    supabase.from(TABLES.ITEMS).insert([itemData])
+    supabase.from(TABLES.ITEMS).insert([{
+      ...itemData,
+    name: sanitize (itemData.name),
+}])
   )
 }
 
 export async function updateItemById(itemId, fields) {
+  const { user_id, ...safeFields } = fields
+  const sanitized = { ...safeFields }
+  if (safeFields.name) sanitized.name = sanitize (safeFields.name) 
   return withRetry(() =>
-    supabase.from(TABLES.ITEMS).update(fields).eq('id', itemId)
+    supabase.from(TABLES.ITEMS).update(sanitized).eq('id', itemId)
   )
 }
 

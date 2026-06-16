@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { showToast } from '../lib/toast'
 import { getStores, insertStore, deleteStoreById } from '../lib/db'
+import { isRateLimited } from '../lib/rateLimit'
 
 export function useStores(userId) {
   const [stores, setStores] = useState([])
@@ -25,9 +26,9 @@ export function useStores(userId) {
   }
 
   async function saveStore(storeData) {
-    if (!storeData.name?.trim()) {
-      showToast('Store name is required.', 'error')
-      return false
+     if (isRateLimited('saveStore', 2000)) {
+    showToast('Please wait before adding another store.', 'error')
+    return false
     }
     const { error } = await insertStore({ ...storeData, user_id: userId })
     if (error) {
