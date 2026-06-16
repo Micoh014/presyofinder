@@ -29,7 +29,11 @@ export function getPinColor(store, searchResults) {
   return '#eab308'
 }
 
+const iconCache = new Map()
+
 export function createColoredIcon(color) {
+  if (iconCache.has(color)) return iconCache.get(color)
+
   const canvas = document.createElement('canvas')
   canvas.width = 32
   canvas.height = 42
@@ -55,12 +59,15 @@ export function createColoredIcon(color) {
   ctx.fillStyle = 'white'
   ctx.fill()
 
-  return L.icon({
+  const icon = L.icon({
     iconUrl: canvas.toDataURL(),
     iconSize: [32, 42],
     iconAnchor: [16, 42],
     popupAnchor: [0, -42],
   })
+
+  iconCache.set(color, icon)
+  return icon
 }
 
 export const STORE_TYPE_FILTERS = [

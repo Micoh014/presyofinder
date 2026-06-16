@@ -1,4 +1,6 @@
-export default function BottomBar({ onStats, onDropPin, onBasket }) {
+import { memo } from "react";
+
+function BottomBar({ onStats, onDropPin, onBasket }) {
   return (
     <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-1000 flex gap-3 safe-bottom">
       <button
@@ -25,3 +27,4 @@ export default function BottomBar({ onStats, onDropPin, onBasket }) {
     </div>
   );
 }
+export default memo(BottomBar);

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useModalKeyboard } from "../lib/useModalKeyboard";
 import { useItems } from "../hooks/useItems";
 import StoreHeader from "./storeDetail/StoreHeader";
@@ -19,10 +19,17 @@ export default function StoreDetail({ store, onClose, onDelete, userId }) {
     addItemsBatch,
   } = useItems(store.id, userId);
 
-  async function handleReceiptItems(scannedItems) {
-    await addItemsBatch(scannedItems);
-    setShowScanner(false);
-  }
+  // Stable reference — ReceiptScanner won't re-render when unrelated state changes
+  const handleReceiptItems = useCallback(
+    async (scannedItems) => {
+      await addItemsBatch(scannedItems);
+      setShowScanner(false);
+    },
+    [addItemsBatch],
+  );
+
+  const handleOpenScanner = useCallback(() => setShowScanner(true), []);
+  const handleCloseScanner = useCallback(() => setShowScanner(false), []);
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-1000">
@@ -36,10 +43,8 @@ export default function StoreDetail({ store, onClose, onDelete, userId }) {
         <StoreHeader store={store} onClose={onClose} onDelete={onDelete} />
 
         <div className="px-6 pb-6 space-y-4 pt-4">
-          <ItemForm
-            onAdd={addItem}
-            onScanReceipt={() => setShowScanner(true)}
-          />
+          <ItemForm onAdd={addItem} onScanReceipt={handleOpenScanner} />
+
           {itemsLoading && (
             <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-4">
               Loading items...
@@ -57,6 +62,7 @@ export default function StoreDetail({ store, onClose, onDelete, userId }) {
               No items yet — add one below.
             </p>
           )}
+
           <ItemList items={items} onUpdate={updateItem} onDelete={deleteItem} />
         </div>
       </div>
@@ -64,7 +70,7 @@ export default function StoreDetail({ store, onClose, onDelete, userId }) {
       {showScanner && (
         <ReceiptScanner
           onItemsFound={handleReceiptItems}
-          onClose={() => setShowScanner(false)}
+          onClose={handleCloseScanner}
         />
       )}
     </div>

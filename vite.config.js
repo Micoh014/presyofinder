@@ -25,6 +25,18 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    rolldownOptions: {
+      output: {
+        advancedChunks: {
+          groups: [
+            { name: 'leaflet', test: /node_modules\/(leaflet|react-leaflet)/ },
+            { name: 'react-core', test: /node_modules\/(react|react-dom)/ },
+          ],
+        },
+      },
+    },
+  },
   test: {
     environment: 'jsdom',
     globals: true,

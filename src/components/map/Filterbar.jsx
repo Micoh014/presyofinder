@@ -1,6 +1,8 @@
 import { STORE_TYPE_FILTERS } from "../../lib/mapUtils";
+import { memo } from "react";
 
-export default function FilterBar({ activeFilter, onFilterChange }) {
+export default memo(FilterBar);
+function FilterBar({ activeFilter, onFilterChange }) {
   return (
     <div className="absolute top-20 left-1/2 -translate-x-1/2 w-full overflow-x-auto px-4 z-1000">
       <div className="flex gap-2 w-max mx-auto">
