@@ -272,7 +272,7 @@ export default function Map({ darkMode, userId }) {
           handleRecenter();
         }}
         aria-label="Recenter map to my location"
-        className="absolute top-4 right-4 z-1000 bg-white dark:bg-gray-800 text-blue-500 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-xl"
+        className="absolute bottom-24 right-4 z-1000 bg-white dark:bg-gray-800 text-blue-500 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-xl"
       >
         🏠
       </button>
@@ -301,17 +301,24 @@ export default function Map({ darkMode, userId }) {
         </div>
       )}
 
-      <SearchBar
-        onResults={handleSearchResultsWithClose}
-        onClear={handleSearchClearFull}
-        userPosition={userPosition}
-        getDistance={getDistanceMeters}
-        onReshow={reshowSearch}
-        onSortModeChange={setSortMode}
-        userId={userId}
-      />
+      <div className="absolute top-3 left-0 right-0 z-1000 px-3">
+        <div style={{ width: "100%", marginBottom: "8px" }}>
+          <SearchBar
+            onResults={handleSearchResultsWithClose}
+            onClear={handleSearchClearFull}
+            userPosition={userPosition}
+            getDistance={getDistanceMeters}
+            onReshow={reshowSearch}
+            onSortModeChange={setSortMode}
+            userId={userId}
+          />
+        </div>
+        <FilterBar
+          activeFilter={activeFilter}
+          onFilterChange={setActiveFilter}
+        />
+      </div>
 
-      <FilterBar activeFilter={activeFilter} onFilterChange={setActiveFilter} />
       <BottomBar
         onStats={() => setShowDashboard(true)}
         onDropPin={handleDropPin}

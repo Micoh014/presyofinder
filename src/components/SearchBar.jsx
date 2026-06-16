@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { supabase } from "../lib/supabase";
+import { useState, memo } from "react";
 import { searchItemsByName } from "../lib/db";
+import Spinner from "./ui/Spinner";
 
-export default function SearchBar({
+function SearchBar({
   onResults,
   onClear,
   onReshow,
@@ -13,8 +13,7 @@ export default function SearchBar({
 }) {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
-  const [sortAsc, setSortAsc] = useState(true);
-  const [sortMode, setSortMode] = useState("price-asc"); // price-asc, price-desc, distance
+  const [sortMode, setSortMode] = useState("price-asc");
 
   async function handleSearch(value, mode = sortMode) {
     setQuery(value);
@@ -22,7 +21,6 @@ export default function SearchBar({
       onClear();
       return;
     }
-
     setLoading(true);
     const { data } = await searchItemsByName(
       userId,
@@ -30,7 +28,6 @@ export default function SearchBar({
       mode !== "price-desc",
     );
     setLoading(false);
-
     if (!data) return;
 
     let sorted = data;
@@ -51,87 +48,74 @@ export default function SearchBar({
         return distA - distB;
       });
     }
-
     onResults(sorted);
   }
 
   function cycleSortMode() {
     const modes = ["price-asc", "price-desc", "distance"];
-    const currentIndex = modes.indexOf(sortMode);
-    const nextMode = modes[(currentIndex + 1) % modes.length];
-    setSortMode(nextMode);
-    onSortModeChange(nextMode);
-    if (query.trim()) handleSearch(query, nextMode);
+    const next = modes[(modes.indexOf(sortMode) + 1) % modes.length];
+    setSortMode(next);
+    onSortModeChange(next);
+    if (query.trim()) handleSearch(query, next);
   }
 
-  return (
-    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-1000 w-[90%] max-w-md">
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <label htmlFor="item-search" className="sr-only">
-            {" "}
-            Search for an item{" "}
-          </label>
-          <input
-            id="item-search"
-            className="w-full bg-white shadow-lg rounded-full px-5 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-green-400 text-gray-800 placeholder-gray-400"
-            placeholder="Search item (e.g. Rice, Egg...)"
-            aria-label="Search for an item"
-            value={query}
-            onChange={(e) => handleSearch(e.target.value)}
-            onFocus={onReshow}
-          />
-          {loading && (
-            <span
-              className="absolute right-4 top-3 text-gray-400 text-sm"
-              aria-hideen="true"
-            >
-              ...
-            </span>
-          )}
-          {query && !loading && (
-            <button
-              onClick={() => handleSearch("")}
-              aria-label="Clear search"
-              className="absolute right-4 top-3 text-gray-400 text-sm"
-            >
-              ✕
-            </button>
-          )}
-        </div>
+  const sortLabel =
+    sortMode === "price-asc"
+      ? "↑ Price"
+      : sortMode === "price-desc"
+        ? "↓ Price"
+        : "📍 Near";
 
-        {/* Sort Button */}
+  return (
+    <div className="flex gap-2 items-center" style={{ width: "100%" }}>
+      <div className="relative" style={{ flex: 1 }}>
+        <label htmlFor="item-search" className="sr-only">
+          Search for an item
+        </label>
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+          🔍
+        </div>
+        <input
+          id="item-search"
+          style={{ width: "100%" }}
+          className="bg-white dark:bg-gray-800 dark:text-white shadow-lg rounded-2xl pl-10 pr-10 py-3.5 focus:outline-none focus:ring-2 focus:ring-green-400 text-gray-800 dark:placeholder-gray-500 placeholder-gray-400 text-sm font-medium"
+          placeholder="What are you looking for?"
+          aria-label="Search for an item"
+          value={query}
+          onChange={(e) => handleSearch(e.target.value)}
+          onFocus={onReshow}
+        />
+        {loading && (
+          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+            <Spinner size="sm" />
+          </div>
+        )}
+        {query && !loading && (
+          <button
+            onClick={() => handleSearch("")}
+            aria-label="Clear search"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-lg leading-none"
+          >
+            ×
+          </button>
+        )}
+      </div>
+
+      {query && (
         <button
           onClick={(e) => {
             e.stopPropagation();
             cycleSortMode();
           }}
-          aria-label={`Sort results: ${sortMode === "price-asc" ? "cheapest first" : sortMode === "price-desc" ? "most expensive first" : "nearest first"}`}
-          className="bg-white dark:bg-gray-800 shadow-lg rounded-full w-12 h-12 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-green-500 transition-colors text-lg"
-          title={
-            sortMode === "price-asc"
-              ? "Cheapest first"
-              : sortMode === "price-desc"
-                ? "Most expensive first"
-                : "Nearest first"
-          }
+          aria-label={`Sort: ${sortLabel}`}
+          className="bg-white dark:bg-gray-800 shadow-lg rounded-2xl px-4 py-3.5 text-xs font-semibold text-gray-600 dark:text-gray-300 hover:text-green-500 transition-colors whitespace-nowrap"
+          style={{ flexShrink: 0 }}
         >
-          {sortMode === "price-asc"
-            ? "↑"
-            : sortMode === "price-desc"
-              ? "↓"
-              : "📍"}
+          {sortLabel}
         </button>
-      </div>
-
-      {/* Sort label */}
-      {query && (
-        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 ml-4">
-          {sortMode === "price-asc" && "↓ Cheapest first"}
-          {sortMode === "price-desc" && "↑ Most expensive first"}
-          {sortMode === "distance" && "📍 Nearest first"}
-        </p>
       )}
     </div>
   );
 }
+
+export default memo(SearchBar);

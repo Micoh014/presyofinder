@@ -1,10 +1,26 @@
-import { STORE_TYPE_FILTERS } from "../../lib/mapUtils";
 import { memo } from "react";
+import { STORE_TYPE_FILTERS } from "../../lib/mapUtils";
 
 function FilterBar({ activeFilter, onFilterChange }) {
   return (
-    <div className="absolute top-20 left-1/2 -translate-x-1/2 w-full overflow-x-auto px-4 z-1000">
-      <div className="flex gap-2 w-max mx-auto">
+    <div
+      style={{
+        width: "100%",
+        overflowX: "auto",
+        overflowY: "hidden",
+        scrollbarWidth: "none",
+        msOverflowStyle: "none",
+        WebkitOverflowScrolling: "touch",
+      }}
+    >
+      <div
+        style={{
+          display: "inline-flex",
+          flexDirection: "row",
+          gap: "8px",
+          padding: "2px 4px",
+        }}
+      >
         {STORE_TYPE_FILTERS.map((f) => (
           <button
             key={f.value}
@@ -14,13 +30,15 @@ function FilterBar({ activeFilter, onFilterChange }) {
             }}
             aria-label={`Filter by ${f.label}`}
             aria-pressed={activeFilter === f.value}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-md transition-colors ${
+            style={{ flexShrink: 0 }}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap shadow-md transition-all ${
               activeFilter === f.value
                 ? "bg-green-500 text-white"
                 : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300"
             }`}
           >
-            {f.icon} {f.label}
+            <span>{f.icon}</span>
+            <span>{f.label}</span>
           </button>
         ))}
       </div>
