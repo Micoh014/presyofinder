@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
-import ExportData from "../components/ExportData";
 import { useModalKeyboard } from "../lib/useModalKeyboard";
+import ExportData from "../components/ExportData";
+import Button from "../components/ui/Button";
 
 export default function Dashboard({ onClose, userId }) {
   const [stats, setStats] = useState(null);
@@ -13,20 +14,20 @@ export default function Dashboard({ onClose, userId }) {
   }, []);
 
   async function fetchStats() {
-    const { data: stores } = await supabase.from("stores").select("*");
+    const { data: stores } = await supabase
+      .from("stores")
+      .select("*")
+      .eq("user_id", userId);
     const { data: items } = await supabase
       .from("items")
-      .select("*, stores(name)");
+      .select("*, stores(name)")
+      .eq("user_id", userId);
 
     if (!stores || !items) return;
 
-    // Total stores
     const totalStores = stores.length;
-
-    // Total items logged
     const totalItems = items.length;
 
-    // Most logged item
     const itemCounts = {};
     items.forEach((item) => {
       const key = item.name.toLowerCase();
@@ -36,7 +37,6 @@ export default function Dashboard({ onClose, userId }) {
       (a, b) => b[1] - a[1],
     )[0];
 
-    // Cheapest find per item
     const itemPrices = {};
     items.forEach((item) => {
       const key = item.name.toLowerCase();
@@ -49,12 +49,10 @@ export default function Dashboard({ onClose, userId }) {
       }
     });
 
-    // Recently added stores
     const recentStores = [...stores]
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
       .slice(0, 3);
 
-    // Stale items count
     const staleCount = items.filter((item) => {
       const days =
         (new Date() - new Date(item.recorded_at)) / (1000 * 60 * 60 * 24);
@@ -80,7 +78,6 @@ export default function Dashboard({ onClose, userId }) {
       aria-labelledby="dashboard-title"
       className="fixed inset-0 bg-white dark:bg-gray-900 z-2000 overflow-y-auto"
     >
-      {/* Header */}
       <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 dark:border-gray-700">
         <h1
           id="dashboard-title"
@@ -90,22 +87,23 @@ export default function Dashboard({ onClose, userId }) {
         </h1>
         <div className="flex items-center gap-3">
           <ExportData userId={userId} />
-          <button
+          <Button
+            variant="ghost"
             onClick={onClose}
-            className="text-gray-500 dark:text-gray-400 text-2xl"
+            aria-label="Close"
+            className="text-2xl p-2 -m-2"
           >
             &times;
-          </button>
+          </Button>
         </div>
       </div>
 
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <p className="text-gray-400 dark:text-gray-500">Loading stats...</p>
+          <p className="text-gray-500 dark:text-gray-400">Loading stats...</p>
         </div>
       ) : (
         <div className="px-6 py-4 space-y-6">
-          {/* Summary Cards */}
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-green-50 dark:bg-green-900/30 rounded-2xl p-4">
               <p className="text-3xl font-bold text-green-600 dark:text-green-400">
@@ -142,7 +140,6 @@ export default function Dashboard({ onClose, userId }) {
             </div>
           </div>
 
-          {/* Cheapest Finds */}
           <div>
             <h2 className="text-lg font-bold text-gray-700 dark:text-gray-200 mb-3">
               💰 Your Cheapest Finds
@@ -175,7 +172,6 @@ export default function Dashboard({ onClose, userId }) {
             )}
           </div>
 
-          {/* Recent Stores */}
           <div>
             <h2 className="text-lg font-bold text-gray-700 dark:text-gray-200 mb-3">
               📍 Recently Added Stores
