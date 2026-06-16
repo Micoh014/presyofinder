@@ -124,10 +124,14 @@ export default function AddStoreModal({ position, onSave, onClose }) {
         )}
 
         <div>
-          <label className="text-sm font-medium text-gray-600 dark:text-gray-300">
+          <label
+            htmlFor="store-name"
+            className="text-sm font-medium text-gray-600 dark:text-gray-300"
+          >
             Store Name
           </label>
           <input
+            id="store-name"
             className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl px-4 py-3 mt-1 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
             placeholder="e.g. Aling Rosa's Store"
             value={name}

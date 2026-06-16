@@ -126,7 +126,11 @@ export default function Basket({ onClose }) {
         <div className="space-y-2">
           {basketItems.map((item, index) => (
             <div key={index} className="flex gap-2 items-center">
+              <label htmlFor={`basket-item-${index}`} className="sr-only">
+                Item {index + 1}
+              </label>
               <input
+                id={`basket-item-${index}`}
                 className="flex-1 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
                 placeholder={`Item ${index + 1} (e.g. Rice)`}
                 value={item.name}

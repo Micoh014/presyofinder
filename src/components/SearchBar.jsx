@@ -68,7 +68,12 @@ export default function SearchBar({
     <div className="absolute top-4 left-1/2 -translate-x-1/2 z-1000 w-[90%] max-w-md">
       <div className="flex gap-2">
         <div className="relative flex-1">
+          <label htmlFor="item-search" className="sr-only">
+            {" "}
+            Search for an item{" "}
+          </label>
           <input
+            id="item-search"
             className="w-full bg-white shadow-lg rounded-full px-5 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-green-400 text-gray-800 placeholder-gray-400"
             placeholder="Search item (e.g. Rice, Egg...)"
             aria-label="Search for an item"

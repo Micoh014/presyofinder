@@ -60,14 +60,24 @@ export default function Login() {
       </p>
 
       <div className="w-full max-w-sm space-y-3">
+        <label htmlFor="login-email" className="sr-only">
+          {" "}
+          Email{" "}
+        </label>
         <input
+          id="login-email"
           className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
           placeholder="Email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
+        <label htmlFor="login-password" className="sr-only">
+          {" "}
+          Password{" "}
+        </label>
         <input
+          id="login-password"
           className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
           placeholder="Password"
           type="password"
