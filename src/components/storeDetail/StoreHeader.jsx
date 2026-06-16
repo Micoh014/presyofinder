@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { showToast } from "../../lib/toast";
+import Button from "../ui/Button";
+import Input from "../ui/Input";
 
 const STORE_ICONS = {
   "sari-sari": "🏪",
@@ -86,11 +88,12 @@ export default function StoreHeader({ store, onClose, onDelete }) {
     <div className="px-6 pt-6 pb-2">
       {editing ? (
         <div className="space-y-3">
-          <input
-            className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+          <Input
+            id="edit-store-name"
+            label="Store name"
+            srOnlyLabel
             value={editName}
             onChange={(e) => setEditName(e.target.value)}
-            aria-label="Store name"
           />
           <select
             className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
@@ -105,18 +108,22 @@ export default function StoreHeader({ store, onClose, onDelete }) {
             ))}
           </select>
           <div className="flex gap-2">
-            <button
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={() => setEditing(false)}
-              className="flex-1 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 rounded-xl py-2 text-sm font-medium"
+              fullWidth
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
               onClick={handleUpdateStore}
-              className="flex-1 bg-green-500 text-white rounded-xl py-2 text-sm font-medium"
+              fullWidth
             >
               Save
-            </button>
+            </Button>
           </div>
         </div>
       ) : (
@@ -133,20 +140,24 @@ export default function StoreHeader({ store, onClose, onDelete }) {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => setEditing(true)}
               aria-label="Edit store"
-              className="text-blue-400 dark:text-blue-300 text-sm font-medium"
+              className="text-blue-400 dark:text-blue-300"
             >
               Edit
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => onDelete(store.id)}
               aria-label="Delete store"
-              className="text-red-400 dark:text-red-300 text-sm font-medium"
+              className="text-red-400 dark:text-red-300"
             >
               Delete
-            </button>
+            </Button>
             <button
               onClick={onClose}
               aria-label="Close"

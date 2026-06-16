@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
+import Button from "./ui/Button";
+import Input from "./ui/Input";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -8,21 +10,6 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [showReset, setShowReset] = useState(false);
-
-  async function handleResetPassword() {
-    if (!email.trim()) {
-      setError("Please enter your email first.");
-      return;
-    }
-    setLoading(true);
-    setError("");
-    setMessage("");
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
-    setLoading(false);
-    if (error) return setError(error.message);
-    setMessage("Password reset link sent! Check your email.");
-  }
 
   async function handleSubmit() {
     if (!email.trim() || !password.trim()) {
@@ -49,38 +36,46 @@ export default function Login() {
     }
   }
 
+  async function handleResetPassword() {
+    if (!email.trim()) {
+      setError("Please enter your email first.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    setMessage("");
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    setLoading(false);
+    if (error) return setError(error.message);
+    setMessage("Password reset link sent! Check your email.");
+  }
+
   return (
     <div className="fixed inset-0 bg-white dark:bg-gray-900 flex flex-col items-center justify-center px-6">
       <div className="text-5xl mb-2">📍</div>
       <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
         PresyoFinder
       </h1>
-      <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
         Your personal price map
       </p>
 
       <div className="w-full max-w-sm space-y-3">
-        <label htmlFor="login-email" className="sr-only">
-          {" "}
-          Email{" "}
-        </label>
-        <input
+        <Input
           id="login-email"
-          className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
-          placeholder="Email"
+          label="Email"
+          srOnlyLabel
           type="email"
+          placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <label htmlFor="login-password" className="sr-only">
-          {" "}
-          Password{" "}
-        </label>
-        <input
+        <Input
           id="login-password"
-          className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
-          placeholder="Password"
+          label="Password"
+          srOnlyLabel
           type="password"
+          placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
@@ -88,13 +83,15 @@ export default function Login() {
         {error && <p className="text-sm text-red-500">{error}</p>}
         {message && <p className="text-sm text-green-500">{message}</p>}
 
-        <button
+        <Button
+          variant="primary"
           onClick={handleSubmit}
           disabled={loading}
-          className="w-full bg-green-500 text-white rounded-xl py-3 font-semibold text-sm disabled:opacity-50"
+          fullWidth
+          size="lg"
         >
           {loading ? "Please wait..." : isSignUp ? "Sign Up" : "Log In"}
-        </button>
+        </Button>
 
         <button
           onClick={() => {
@@ -107,15 +104,16 @@ export default function Login() {
           {isSignUp
             ? "Already have an account? Log in"
             : "Don't have an account? Sign up"}
-          {!isSignUp && (
-            <button
-              onClick={handleResetPassword}
-              className="w-full text-xs text-gray-400 dark:text-gray-500"
-            >
-              Forgot password?
-            </button>
-          )}
         </button>
+
+        {!isSignUp && (
+          <button
+            onClick={handleResetPassword}
+            className="w-full text-xs text-gray-400 dark:text-gray-500"
+          >
+            Forgot password?
+          </button>
+        )}
       </div>
     </div>
   );
