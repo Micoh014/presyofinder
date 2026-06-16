@@ -80,15 +80,23 @@ export default function Login() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        {error && <p className="text-sm text-red-500">{error}</p>}
-        {message && <p className="text-sm text-green-500">{message}</p>}
+        {error && (
+          <p className="text-sm text-red-500" role="alert">
+            {error}
+          </p>
+        )}
+        {message && (
+          <p className="text-sm text-green-500" role="status">
+            {message}
+          </p>
+        )}
 
         <Button
           variant="primary"
+          size="lg"
           onClick={handleSubmit}
           disabled={loading}
           fullWidth
-          size="lg"
         >
           {loading ? "Please wait..." : isSignUp ? "Sign Up" : "Log In"}
         </Button>
