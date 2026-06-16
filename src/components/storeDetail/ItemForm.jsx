@@ -1,4 +1,6 @@
 import { useState } from "react";
+import Input from "../ui/Input";
+import Button from "../ui/Button";
 
 export default function ItemForm({ onAdd, onScanReceipt }) {
   const [itemName, setItemName] = useState("");
@@ -22,40 +24,34 @@ export default function ItemForm({ onAdd, onScanReceipt }) {
       <h3 className="font-semibold text-gray-700 dark:text-gray-200">
         Add Item
       </h3>
-      <label htmlFor="item-name" className="sr-only">
-        Item name
-      </label>
-      <input
+      <Input
         id="item-name"
-        className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl px-4 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
+        label="Item name"
+        srOnlyLabel
         placeholder="Item name (e.g. Rice 1kg)"
         value={itemName}
         onChange={(e) => setItemName(e.target.value)}
       />
-      <label htmlFor="item-price" className="sr-only">
-        Item price in pesos
-      </label>
-      <input
+      <Input
         id="item-price"
-        className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl px-4 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
-        placeholder="Price (e.g. 52.00)"
+        label="Item price in pesos"
+        srOnlyLabel
         type="number"
+        placeholder="Price (e.g. 52.00)"
         value={itemPrice}
         onChange={(e) => setItemPrice(e.target.value)}
       />
-      <button
+      <Button
+        variant="primary"
         onClick={handleAdd}
         disabled={loading}
-        className="w-full bg-green-500 text-white rounded-xl py-2.5 font-semibold text-sm disabled:opacity-50"
+        fullWidth
       >
         {loading ? "Saving..." : "+ Add Item"}
-      </button>
-      <button
-        onClick={onScanReceipt}
-        className="w-full border border-green-400 dark:border-green-500 text-green-600 dark:text-green-400 rounded-xl py-2.5 font-semibold text-sm"
-      >
+      </Button>
+      <Button variant="outline" onClick={onScanReceipt} fullWidth>
         🧾 Scan Receipt Instead
-      </button>
+      </Button>
     </div>
   );
 }
