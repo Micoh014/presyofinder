@@ -1,4 +1,5 @@
-import { useModalKeyboard } from "../lib/useModalKeyboard";
+import Modal from "./ui/Modal";
+import Button from "./ui/Button";
 
 export default function ConfirmDialog({
   title,
@@ -9,38 +10,32 @@ export default function ConfirmDialog({
   onCancel,
   danger = false,
 }) {
-  const modalRef = useModalKeyboard(onCancel);
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-9999 px-6">
-      <div
-        ref={modalRef}
-        role="alertdialog"
-        aria-model="true"
-        aria-labelledby="confirm-title"
-        className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm space-y-4"
+    <Modal
+      onClose={onCancel}
+      labelId="confirm-title"
+      position="center"
+      className="p-6 space-y-4"
+    >
+      <h3
+        id="confirm-title"
+        className="text-lg font-bold text-gray-800 dark:text-white"
       >
-        <h3
-          id="confirm-title"
-          className="text-lg font-bold text-gray-800 dark:text-white"
+        {title}
+      </h3>
+      <p className="text-sm text-gray-500 dark:text-gray-400">{message}</p>
+      <div className="flex gap-3 pt-2">
+        <Button variant="secondary" onClick={onCancel} fullWidth>
+          {cancelLabel}
+        </Button>
+        <Button
+          variant={danger ? "danger" : "primary"}
+          onClick={onConfirm}
+          fullWidth
         >
-          {title}
-        </h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400">{message}</p>
-        <div className="flex gap-3 pt-2">
-          <button
-            onClick={onCancel}
-            className="flex-1 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 rounded-xl py-2.5 font-semibold text-sm"
-          >
-            {cancelLabel}
-          </button>
-          <button
-            onClick={onConfirm}
-            className={`flex-1 rounded-xl py-2.5 font-semibold text-sm text-white ${danger ? "bg-red-500" : "bg-green-500"}`}
-          >
-            {confirmLabel}
-          </button>
-        </div>
+          {confirmLabel}
+        </Button>
       </div>
-    </div>
+    </Modal>
   );
 }
