@@ -6,6 +6,7 @@ import Onboarding from "./components/Onboarding";
 import Toast from "./components/Toast";
 import { supabase } from "./lib/supabase";
 import { useDarkMode } from "./hooks/useDarkMode";
+import OfflineBanner from "./components/OfflineBanner";
 
 function App() {
   const { darkMode, toggleDarkMode } = useDarkMode();
@@ -55,6 +56,7 @@ function App() {
       style={{ width: "100vw", height: "100vh" }}
       className="flex flex-col dark:bg-gray-900"
     >
+      <OfflineBanner />
       <Toast />
       <div className="flex items-center justify-between px-4 py-3 safe-top bg-white dark:bg-gray-800 shadow-sm z-1000 relative">
         <div className="flex items-center gap-2">
@@ -96,7 +98,6 @@ function App() {
           </button>
         </div>
       </div>
-
       <div className="flex-1 relative">
         <Map darkMode={darkMode} userId={session.user.id} />
       </div>

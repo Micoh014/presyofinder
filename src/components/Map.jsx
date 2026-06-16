@@ -39,8 +39,14 @@ export default function Map({ darkMode, userId }) {
 
   const mapRef = useRef(null);
 
-  const { stores, storesLoading, fetchStores, saveStore, deleteStore } =
-    useStores(userId);
+  const {
+    stores,
+    storesLoading,
+    storesError,
+    fetchStores,
+    saveStore,
+    deleteStore,
+  } = useStores(userId);
   const { trailRoute, fetchRoute, clearRoute } = useRoute();
   const {
     searchResults,
@@ -325,6 +331,15 @@ export default function Map({ darkMode, userId }) {
           onConfirm={confirmDialog.onConfirm}
           onCancel={hideConfirm}
         />
+      )}
+
+      {storesError && (
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-1000 bg-red-500 text-white text-sm px-4 py-2 rounded-full shadow-lg">
+          {storesError} —{" "}
+          <button onClick={fetchStores} className="underline">
+            Retry
+          </button>
+        </div>
       )}
     </div>
   );

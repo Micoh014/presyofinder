@@ -5,6 +5,7 @@ import { getStores, insertStore, deleteStoreById } from '../lib/db'
 export function useStores(userId) {
   const [stores, setStores] = useState([])
   const [storesLoading, setStoresLoading] = useState(true)
+  const [storesError, setStoresError] = useState(null)
 
   useEffect(() => {
     if (userId) fetchStores()
@@ -12,22 +13,34 @@ export function useStores(userId) {
 
   async function fetchStores() {
     setStoresLoading(true)
-    const { data } = await getStores(userId)
-    if (data) setStores(data)
+    setStoresError(null)
+    const { data, error } = await getStores(userId)
+    if (error) {
+      setStoresError('Could not load stores. Check your connection and try again.')
+      showToast('Failed to load stores.', 'error')
+    } else {
+      setStores(data ?? [])
+    }
     setStoresLoading(false)
   }
 
   async function saveStore(storeData) {
+    if (!storeData.name?.trim()) {
+      showToast('Store name is required.', 'error')
+      return false
+    }
     const { error } = await insertStore({ ...storeData, user_id: userId })
     if (error) {
       showToast('Error saving store: ' + error.message, 'error')
       return false
     }
     await fetchStores()
+    showToast('Store saved!', 'success')
     return true
   }
 
   async function deleteStore(storeId) {
+    if (!storeId) return false
     const { error } = await deleteStoreById(storeId)
     if (error) {
       showToast('Error deleting store: ' + error.message, 'error')
@@ -37,5 +50,5 @@ export function useStores(userId) {
     return true
   }
 
-  return { stores, storesLoading, fetchStores, saveStore, deleteStore }
+  return { stores, storesLoading, storesError, fetchStores, saveStore, deleteStore }
 }

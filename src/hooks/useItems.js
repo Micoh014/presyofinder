@@ -4,21 +4,42 @@ import { getItems, insertItem, updateItemById, deleteItemById } from '../lib/db'
 
 export function useItems(storeId, userId) {
   const [items, setItems] = useState([])
+  const [itemsLoading, setItemsLoading] = useState(true)
+  const [itemsError, setItemsError] = useState(null)
 
   useEffect(() => {
     if (storeId) fetchItems()
   }, [storeId])
 
   async function fetchItems() {
-    const { data } = await getItems(storeId)
-    if (data) setItems(data)
+    setItemsLoading(true)
+    setItemsError(null)
+    const { data, error } = await getItems(storeId)
+    if (error) {
+      setItemsError('Could not load items. Check your connection and try again.')
+    } else {
+      setItems(data ?? [])
+    }
+    setItemsLoading(false)
   }
 
   async function addItem(name, price) {
+    const trimmed = name?.trim()
+    const parsed = parseFloat(price)
+
+    if (!trimmed) {
+      showToast('Item name is required.', 'error')
+      return false
+    }
+    if (isNaN(parsed) || parsed <= 0) {
+      showToast('Enter a valid price greater than 0.', 'error')
+      return false
+    }
+
     const { error } = await insertItem({
       store_id: storeId,
-      name: name.trim(),
-      price: parseFloat(price),
+      name: trimmed,
+      price: parsed,
       user_id: userId,
     })
     if (error) {
@@ -30,9 +51,21 @@ export function useItems(storeId, userId) {
   }
 
   async function updateItem(itemId, name, price) {
+    const trimmed = name?.trim()
+    const parsed = parseFloat(price)
+
+    if (!trimmed) {
+      showToast('Item name is required.', 'error')
+      return false
+    }
+    if (isNaN(parsed) || parsed <= 0) {
+      showToast('Enter a valid price greater than 0.', 'error')
+      return false
+    }
+
     const { error } = await updateItemById(itemId, {
-      name: name.trim(),
-      price: parseFloat(price),
+      name: trimmed,
+      price: parsed,
       recorded_at: new Date().toISOString(),
     })
     if (error) {
@@ -44,6 +77,7 @@ export function useItems(storeId, userId) {
   }
 
   async function deleteItem(itemId) {
+    if (!itemId) return false
     const { error } = await deleteItemById(itemId)
     if (error) {
       showToast('Error deleting item: ' + error.message, 'error')
@@ -54,16 +88,34 @@ export function useItems(storeId, userId) {
   }
 
   async function addItemsBatch(scannedItems) {
-    for (const item of scannedItems) {
-      await insertItem({
-        store_id: storeId,
-        name: item.name,
-        price: parseFloat(item.price),
-        user_id: userId,
-      })
+    const valid = scannedItems.filter(
+      i => i.name?.trim() && !isNaN(parseFloat(i.price)) && parseFloat(i.price) > 0
+    )
+
+    if (valid.length === 0) {
+      showToast('No valid items to add.', 'error')
+      return false
     }
+
+    const results = await Promise.all(
+      valid.map(item =>
+        insertItem({
+          store_id: storeId,
+          name: item.name.trim(),
+          price: parseFloat(item.price),
+          user_id: userId,
+        })
+      )
+    )
+
+    const failed = results.filter(r => r.error).length
+    if (failed > 0) {
+      showToast(`${failed} item(s) failed to save. The rest were added.`, 'error')
+    }
+
     await fetchItems()
+    return failed === 0
   }
 
-  return { items, fetchItems, addItem, updateItem, deleteItem, addItemsBatch }
+  return { items, itemsLoading, itemsError, fetchItems, addItem, updateItem, deleteItem, addItemsBatch }
 }

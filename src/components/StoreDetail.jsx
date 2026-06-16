@@ -9,10 +9,15 @@ import ReceiptScanner from "./ReceiptScanner";
 export default function StoreDetail({ store, onClose, onDelete, userId }) {
   const [showScanner, setShowScanner] = useState(false);
   const modalRef = useModalKeyboard(onClose);
-  const { items, addItem, updateItem, deleteItem, addItemsBatch } = useItems(
-    store.id,
-    userId,
-  );
+  const {
+    items,
+    itemsLoading,
+    itemsError,
+    addItem,
+    updateItem,
+    deleteItem,
+    addItemsBatch,
+  } = useItems(store.id, userId);
 
   async function handleReceiptItems(scannedItems) {
     await addItemsBatch(scannedItems);
@@ -35,6 +40,23 @@ export default function StoreDetail({ store, onClose, onDelete, userId }) {
             onAdd={addItem}
             onScanReceipt={() => setShowScanner(true)}
           />
+          {itemsLoading && (
+            <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-4">
+              Loading items...
+            </p>
+          )}
+
+          {itemsError && !itemsLoading && (
+            <div className="bg-red-50 dark:bg-red-900/30 rounded-xl px-4 py-3 text-sm text-red-500 dark:text-red-400">
+              {itemsError}
+            </div>
+          )}
+
+          {!itemsLoading && !itemsError && items.length === 0 && (
+            <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-4">
+              No items yet — add one below.
+            </p>
+          )}
           <ItemList items={items} onUpdate={updateItem} onDelete={deleteItem} />
         </div>
       </div>
