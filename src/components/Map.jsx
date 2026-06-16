@@ -1,174 +1,166 @@
-import {
-  getDistanceMeters,
-  getPinColor,
-  createColoredIcon,
-  STORE_TYPE_FILTERS,
-} from "../lib/mapUtils";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-  useMap,
-  useMapEvents,
-  CircleMarker,
-  Polyline,
-} from "react-leaflet";
-import { useEffect, useState } from "react";
-import L from "leaflet";
-import AddStoreModal from "./AddStoreModal";
+import { useState, useRef } from "react";
+import { MapContainer, TileLayer } from "react-leaflet";
 import { supabase } from "../lib/supabase";
+import { showToast } from "../lib/toast";
+import { getDistanceMeters } from "../lib/mapUtils";
+
+import { useStores } from "../hooks/useStores";
+import { useRoute } from "../hooks/useRoute";
+import { useSearch } from "../hooks/useSearch";
+
+import LocationMarker from "./map/LocationMarker";
+import MapClickHandler from "./map/MapClickHandler";
+import MapRefSetter from "./map/MapRefSetter";
+import StoreMarkers from "./map/StoreMarkers";
+import FilterBar from "./map/FilterBar";
+import BottomBar from "./map/BottomBar";
+import TrailLine from "./map/TrailLine";
+
+import AddStoreModal from "./AddStoreModal";
 import StoreDetail from "./StoreDetail";
 import SearchBar from "./SearchBar";
 import SearchResults from "./SearchResults";
 import Dashboard from "../pages/Dashboard";
 import Basket from "./Basket";
-import { useRef } from "react";
-import { showToast } from "../lib/toast";
 import ConfirmDialog from "./ConfirmDialog";
-
-function LocationMarker({ onLocationFound }) {
-  const map = useMap();
-
-  useEffect(() => {
-    let marker = null;
-    map.locate({ setView: true, maxZoom: 16 });
-
-    map.on("locationfound", (e) => {
-      onLocationFound(e.latlng);
-
-      if (marker) {
-        map.removeLayer(marker);
-      }
-      marker = L.circleMarker(e.latlng, {
-        radius: 8,
-        fillColor: "#3b82f6",
-        color: "#ffffff",
-        weight: 2,
-        fillOpacity: 1,
-      }).addTo(map);
-    });
-
-    map.on("locationerror", () => {
-      alert("Could not get your location. Please allow location access.");
-    });
-    return () => {
-      if (marker) {
-        map.removeLayer(marker);
-      }
-    };
-  }, [map]);
-  return null;
-}
-
-function MapClickHandler({ onMapClick }) {
-  useMapEvents({
-    click: (e) => onMapClick(e.latlng),
-  });
-  return null;
-}
-
-function MapRefSetter({ mapRef }) {
-  const map = useMap();
-  useEffect(() => {
-    mapRef.current = map;
-  }, [map]);
-  return null;
-}
 
 export default function Map({ darkMode, userId }) {
   const [userPosition, setUserPosition] = useState(null);
   const [pinPosition, setPinPosition] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [stores, setStores] = useState([]);
   const [selectedStore, setSelectedStore] = useState(null);
-  const [searchResults, setSearchResults] = useState([]);
-  const [searching, setSearching] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
   const [showBasket, setShowBasket] = useState(false);
   const [activeFilter, setActiveFilter] = useState("all");
-  const mapRef = useRef(null);
   const [trailTarget, setTrailTarget] = useState(null);
-  const [sortMode, setSortMode] = useState("price-asc");
-  const [trailRoute, setTrailRoute] = useState(null);
-  const [storesLoading, setStoresLoading] = useState(true);
   const [confirmDialog, setConfirmDialog] = useState(null);
 
-  useEffect(() => {
-    if (userId) fetchStores();
-  }, [userId]);
+  const mapRef = useRef(null);
 
-  async function fetchStores() {
-    setStoresLoading(true);
-    const { data } = await supabase
-      .from("stores")
-      .select("*")
-      .eq("user_id", userId);
-    if (data) setStores(data);
-    setStoresLoading(false);
-  }
+  const { stores, storesLoading, fetchStores, saveStore, deleteStore } =
+    useStores(userId);
+  const { trailRoute, fetchRoute, clearRoute } = useRoute();
+  const {
+    searchResults,
+    searching,
+    sortMode,
+    setSortMode,
+    handleSearchResults,
+    handleSearchClear,
+    hideSearch,
+    reshowSearch,
+  } = useSearch();
 
-  async function handleSaveStore(storeData) {
-    const { error } = await supabase
-      .from("stores")
-      .insert([{ ...storeData, user_id: userId }]);
-    if (error)
-      return showToast("Error saving store: " + error.message, "error");
-    setShowModal(false);
-    fetchStores();
-  }
-
-  function handleSearchResults(results) {
-    setSearchResults(results);
-    setSearching(true);
-    setShowModal(false);
-  }
-
-  function handleSearchClear() {
-    setSearchResults([]);
-    setSearching(false);
-    setTrailTarget(null);
-    setTrailTarget(null);
-  }
   function handleRecenter() {
     if (!userPosition || !mapRef.current) return;
     mapRef.current.flyTo(userPosition, 16);
   }
-  async function handleDeleteStore(storeId) {
+
+  async function handleSaveStore(storeData) {
+    const success = await saveStore(storeData);
+    if (success) setShowModal(false);
+  }
+
+  function handleDeleteStore(storeId) {
     setConfirmDialog({
       title: "Delete Store?",
       message:
-        "This will also delete all items logged for this store. This cannot be undone. Are you sure?",
+        "This will also delete all items logged for this store. This cannot be undone.",
       danger: true,
       onConfirm: async () => {
         setConfirmDialog(null);
-        const { error } = await supabase
-          .from("stores")
-          .delete()
-          .eq("id", storeId);
-        if (error)
-          return showToast("Error deleting store: " + error.message, "error");
-        setSelectedStore(null);
-        fetchStores();
+        const success = await deleteStore(storeId);
+        if (success) setSelectedStore(null);
       },
     });
   }
-  async function fetchRoute(start, end) {
-    try {
-      const url = `https://router.project-osrm.org/route/v1/foot/${start.lng},${start.lat};${end.longitude},${end.latitude}?overview=full&geometries=geojson`;
-      const res = await fetch(url);
-      const data = await res.json();
-      if (data.routes && data.routes[0]) {
-        const coords = data.routes[0].geometry.coordinates.map(([lng, lat]) => [
-          lat,
-          lng,
-        ]);
-        setTrailRoute(coords);
-      }
-    } catch (err) {
-      console.error("Routing error:", err);
-      setTrailRoute(null);
+
+  function handleMapClick(latlng) {
+    if (searching) {
+      hideSearch();
+      return;
     }
+
+    const nearby = stores.find(
+      (store) =>
+        getDistanceMeters(
+          latlng.lat,
+          latlng.lng,
+          store.latitude,
+          store.longitude,
+        ) < 20,
+    );
+
+    if (nearby) {
+      setConfirmDialog({
+        title: "Nearby Store Found",
+        message: `There's already a store "${nearby.name}" within 20 meters. Add a new pin anyway?`,
+        confirmLabel: "Add Anyway",
+        onConfirm: () => {
+          setConfirmDialog(null);
+          hideSearch();
+          setPinPosition(latlng);
+          setShowModal(true);
+        },
+      });
+      return;
+    }
+
+    hideSearch();
+    setPinPosition(latlng);
+    setShowModal(true);
+  }
+
+  function handleDropPin() {
+    hideSearch();
+    if (!userPosition) return showToast("Waiting for your location...", "info");
+
+    const nearby = stores.find(
+      (store) =>
+        getDistanceMeters(
+          userPosition.lat,
+          userPosition.lng,
+          store.latitude,
+          store.longitude,
+        ) < 20,
+    );
+
+    if (nearby) {
+      setConfirmDialog({
+        title: "Nearby Store Found",
+        message: `There's already a store "${nearby.name}" within 20 meters. Add a new pin anyway?`,
+        confirmLabel: "Add Anyway",
+        onConfirm: () => {
+          setConfirmDialog(null);
+          setPinPosition(userPosition);
+          setShowModal(true);
+        },
+      });
+      return;
+    }
+
+    setPinPosition(userPosition);
+    setShowModal(true);
+  }
+
+  function handleSelectStoreFromSearch(store) {
+    setTrailTarget(store);
+    hideSearch();
+    if (userPosition) fetchRoute(userPosition, store);
+    if (mapRef.current)
+      mapRef.current.flyTo([store.latitude, store.longitude], 16);
+  }
+
+  function handleCloseStoreDetail() {
+    setSelectedStore(null);
+    setTrailTarget(null);
+    clearRoute();
+  }
+
+  function handleSearchClearFull() {
+    handleSearchClear();
+    setTrailTarget(null);
+    clearRoute();
   }
 
   return (
@@ -196,67 +188,21 @@ export default function Map({ darkMode, userId }) {
         />
         <LocationMarker onLocationFound={setUserPosition} />
         <MapRefSetter mapRef={mapRef} />
-
-        <MapClickHandler
-          onMapClick={(latlng) => {
-            if (searching) {
-              setSearching(false);
-              return;
-            }
-
-            const nearby = stores.find(
-              (store) =>
-                getDistanceMeters(
-                  latlng.lat,
-                  latlng.lng,
-                  store.latitude,
-                  store.longitude,
-                ) < 20,
-            );
-
-            if (nearby) {
-              setConfirmDialog({
-                title: "Nearby Store Found",
-                message: `There's already a store "${nearby.name}" within 20 meters. Add a new pin anyway?`,
-                confirmLabel: "Add Anyway",
-                onConfirm: () => {
-                  setConfirmDialog(null);
-                  setSearching(false);
-                  setPinPosition(latlng);
-                  setShowModal(true);
-                },
-              });
-              return;
-            }
-
-            setSearching(false);
-            setPinPosition(latlng);
-            setShowModal(true);
-          }}
+        <MapClickHandler onMapClick={handleMapClick} />
+        <StoreMarkers
+          stores={stores}
+          searchResults={searchResults}
+          activeFilter={activeFilter}
+          onStoreClick={setSelectedStore}
         />
-
-        {stores
-          .filter(
-            (store) => activeFilter === "all" || store.type === activefilter,
-          )
-          .map((store) => (
-            <Marker
-              key={`${store.id}-${getPinColor(store, searchResults)}`}
-              position={[store.latitude, store.longitude]}
-              icon={createColoredIcon(getPinColor(store, searchResults))}
-              eventHandlers={{
-                click: () => setSelectedStore(store),
-                mouseover: (e) => e.target.openPopup(),
-                mouseout: (e) => e.target.closePopup(),
-              }}
-            >
-              <Popup closeButton={false} autoPan={false}>
-                <span className="text-sm font-medium">{store.name}</span>
-              </Popup>
-            </Marker>
-          ))}
+        <TrailLine
+          trailTarget={trailTarget}
+          userPosition={userPosition}
+          trailRoute={trailRoute}
+        />
       </MapContainer>
 
+      {/* Screen reader store list */}
       <div className="sr-only" aria-live="polite">
         <h2>Stores on map</h2>
         <ul>
@@ -272,28 +218,7 @@ export default function Map({ darkMode, userId }) {
         </ul>
       </div>
 
-      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-full overflow-x-auto px-4 z-1000">
-        <div className="flex gap-2 w-max mx-auto">
-          {STORE_TYPE_FILTERS.map((f) => (
-            <button
-              key={f.value}
-              onClick={(e) => {
-                e.stopPropagation();
-                setActiveFilter(f.value);
-              }}
-              aria-label={`Filter by ${f.label}`}
-              aria-pressed={activeFilter === f.value}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-md transition-colors ${
-                activeFilter === f.value
-                  ? "bg-green-500 text-white"
-                  : "bg-white text-gray-600"
-              }`}
-            >
-              {f.icon} {f.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Recenter button */}
       <button
         onClick={(e) => {
           e.stopPropagation();
@@ -301,63 +226,57 @@ export default function Map({ darkMode, userId }) {
         }}
         aria-label="Recenter map to my location"
         className="absolute top-4 right-4 z-1000 bg-white dark:bg-gray-800 text-blue-500 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-xl"
-        title="Recenter to my location"
       >
         🏠
       </button>
 
-      {/* Bottom Bar */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-1000 flex gap-3 safe-bottom">
-        <button
-          onClick={() => setShowDashboard(true)}
-          aria-label="Open dashboard statistics"
-          className="flex items-center gap-2 bg-white text-gray-700 px-5 py-3 rounded-full shadow-lg font-semibold text-sm border border-gray-100"
-        >
-          📊 Stats
-        </button>
-        <button
-          onClick={() => {
-            setSearching(false);
-            if (!userPosition)
-              return showToast("Waiting for your location...", "info");
-            const nearby = stores.find(
-              (store) =>
-                getDistanceMeters(
-                  userPosition.lat,
-                  userPosition.lng,
-                  store.latitude,
-                  store.longitude,
-                ) < 20,
-            );
-            if (nearby) {
-              setConfirmDialog({
-                title: "Nearby Store Found",
-                message: `There's already a store "${nearby.name}" within 20 meters. Add a new pin anyway?`,
-                confirmLabel: "Add Anyway",
-                onConfirm: () => {
-                  setConfirmDialog(null);
-                  setPinPosition(userPosition);
-                  setShowModal(true);
-                },
-              });
-              return;
-            }
-            setPinPosition(userPosition);
-            setShowModal(true);
-          }}
-          aria-label="Drop a pin at my current location"
-          className="flex items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-full shadow-lg font-bold text-sm"
-        >
-          + Drop Pin
-        </button>
-        <button
-          onClick={() => setShowBasket(true)}
-          aria-label="Open basket finder"
-          className="flex items-center gap-2 bg-white text-gray-700 px-5 py-3 rounded-full shadow-lg font-semibold text-sm border border-gray-100"
-        >
-          🧺 Basket
-        </button>
-      </div>
+      {/* Loading indicator */}
+      {storesLoading && stores.length === 0 && (
+        <div className="absolute top-4 left-4 z-1000 bg-white dark:bg-gray-800 px-3 py-2 rounded-full shadow-lg flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+          <div className="w-3 h-3 border-2 border-green-200 border-t-green-500 rounded-full animate-spin" />
+          Loading stores...
+        </div>
+      )}
+
+      {/* Empty state */}
+      {!storesLoading &&
+        stores.filter((s) => activeFilter === "all" || s.type === activeFilter)
+          .length === 0 && (
+          <div className="absolute inset-0 z-999 flex items-center justify-center pointer-events-none px-6">
+            <div className="bg-white/95 dark:bg-gray-800/95 rounded-2xl px-6 py-4 shadow-lg text-center max-w-xs">
+              <p className="text-2xl mb-2">📍</p>
+              <p className="font-semibold text-gray-800 dark:text-white text-sm">
+                No stores yet
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {activeFilter === "all"
+                  ? 'Tap anywhere on the map to drop your first pin, or use the "+ Drop Pin" button below.'
+                  : `No ${activeFilter} stores yet. Try a different filter or add one!`}
+              </p>
+            </div>
+          </div>
+        )}
+
+      <SearchBar
+        onResults={(results) => {
+          handleSearchResults(results);
+          setShowModal(false);
+        }}
+        onClear={handleSearchClearFull}
+        userPosition={userPosition}
+        getDistance={getDistanceMeters}
+        onReshow={reshowSearch}
+        onSortModeChange={setSortMode}
+        userId={userId}
+      />
+
+      <FilterBar activeFilter={activeFilter} onFilterChange={setActiveFilter} />
+
+      <BottomBar
+        onStats={() => setShowDashboard(true)}
+        onDropPin={handleDropPin}
+        onBasket={() => setShowBasket(true)}
+      />
 
       {showModal && pinPosition && (
         <AddStoreModal
@@ -370,54 +289,11 @@ export default function Map({ darkMode, userId }) {
       {selectedStore && (
         <StoreDetail
           store={selectedStore}
-          onClose={() => {
-            setSelectedStore(null);
-            setTrailTarget(null);
-          }}
+          onClose={handleCloseStoreDetail}
           onDelete={handleDeleteStore}
           userId={userId}
         />
       )}
-
-      {trailTarget && userPosition && (
-        <Polyline
-          positions={
-            trailRoute || [
-              [userPosition.lat, userPosition.lng],
-              [trailTarget.latitude, trailTarget.longitude],
-            ]
-          }
-          pathOptions={{ color: "#3b82f6", weight: 3, dashArray: "8, 8" }}
-        />
-      )}
-      {!storesLoading &&
-        stores.filter((s) => activeFilter === "all" || s.type === activeFilter)
-          .length === 0 && (
-          <div className="absolute inset-0 z-999 flex items-center justify-center pointer-events-none px-6">
-            <div className="bg-white/95 dark:bg-gray-800/95 rounded-2xl px-6 py-4 shadow-lg text-center max-w-xs">
-              <p className="text-2xl mb-2">📍</p>
-              <p className="font-semibold text-gray-800 dark:text-white text-sm">
-                No stores yet
-              </p>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                {activeFilter === "all"
-                  ? 'Tap anywhere on the map to drop your first pin, or use the "+ Drop Pin" button below.'
-                  : `No ${activeFilter} stores yet. Try a different filter or add one!`}
-              </p>
-            </div>
-          </div>
-        )}
-      <SearchBar
-        onResults={handleSearchResults}
-        onClear={handleSearchClear}
-        userPosition={userPosition}
-        getDistance={getDistanceMeters}
-        onReshow={() => {
-          if (searchResults.length > 0) setSearching(true);
-        }}
-        onSortModeChange={setSortMode}
-        userId={userId}
-      />
 
       {searching && searchResults.length > 0 && (
         <SearchResults
@@ -425,19 +301,14 @@ export default function Map({ darkMode, userId }) {
           userPosition={userPosition}
           getDistance={getDistanceMeters}
           sortMode={sortMode}
-          onSelectStore={(store) => {
-            setTrailTarget(store);
-            setSearching(false);
-            if (userPosition) fetchRoute(userPosition, store);
-            if (mapRef.current) {
-              mapRef.current.flyTo([store.latitude, store.longitude], 16);
-            }
-          }}
+          onSelectStore={handleSelectStoreFromSearch}
         />
       )}
+
       {showDashboard && (
         <Dashboard onClose={() => setShowDashboard(false)} userId={userId} />
       )}
+
       {showBasket && <Basket onClose={() => setShowBasket(false)} />}
 
       {confirmDialog && (
