@@ -82,13 +82,17 @@ export default function SearchBar({
             onFocus={onReshow}
           />
           {loading && (
-            <span className="absolute right-4 top-3 text-gray-400 text-sm">
+            <span
+              className="absolute right-4 top-3 text-gray-400 text-sm"
+              aria-hideen="true"
+            >
               ...
             </span>
           )}
           {query && !loading && (
             <button
               onClick={() => handleSearch("")}
+              aria-label="Clear search"
               className="absolute right-4 top-3 text-gray-400 text-sm"
             >
               ✕
