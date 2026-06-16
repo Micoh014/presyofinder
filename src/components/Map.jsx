@@ -16,6 +16,7 @@ import StoreMarkers from "./map/StoreMarkers";
 import FilterBar from "./map/FilterBar";
 import BottomBar from "./map/BottomBar";
 import TrailLine from "./map/TrailLine";
+import LogMode from "./map/Logmode";
 
 import AddStoreModal from "./AddStoreModal";
 import StoreDetail from "./StoreDetail";
@@ -41,6 +42,7 @@ export default function Map({ darkMode, userId }) {
   const [trailTarget, setTrailTarget] = useState(null);
   const { confirmDialog, showConfirm, hideConfirm } = useConfirmDialog();
   const mapRef = useRef(null);
+  const [appMode, setAppMode] = useState("browse");
 
   const {
     stores,
@@ -301,28 +303,42 @@ export default function Map({ darkMode, userId }) {
         </div>
       )}
 
-      <div className="absolute top-3 left-0 right-0 z-1000 px-3">
-        <div style={{ width: "100%", marginBottom: "8px" }}>
-          <SearchBar
-            onResults={handleSearchResultsWithClose}
-            onClear={handleSearchClearFull}
-            userPosition={userPosition}
-            getDistance={getDistanceMeters}
-            onReshow={reshowSearch}
-            onSortModeChange={setSortMode}
-            userId={userId}
+      {appMode === "browse" && (
+        <div className="absolute top-3 left-0 right-0 z-1000 px-3">
+          <div style={{ width: "100%", marginBottom: "8px" }}>
+            <SearchBar
+              onResults={handleSearchResultsWithClose}
+              onClear={handleSearchClearFull}
+              userPosition={userPosition}
+              getDistance={getDistanceMeters}
+              onReshow={reshowSearch}
+              onSortModeChange={setSortMode}
+              userId={userId}
+            />
+          </div>
+          <FilterBar
+            activeFilter={activeFilter}
+            onFilterChange={setActiveFilter}
           />
         </div>
-        <FilterBar
-          activeFilter={activeFilter}
-          onFilterChange={setActiveFilter}
+      )}
+
+      {appMode === "log" && (
+        <LogMode
+          stores={stores}
+          storesLoading={storesLoading}
+          userPosition={userPosition}
+          onSelectStore={setSelectedStore}
+          onDropPin={handleDropPin}
         />
-      </div>
+      )}
 
       <BottomBar
         onStats={() => setShowDashboard(true)}
         onDropPin={handleDropPin}
         onBasket={() => setShowBasket(true)}
+        mode={appMode}
+        onModeChange={setAppMode}
       />
 
       {showModal && pinPosition && (
