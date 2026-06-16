@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test" : "vitest run",
     "test:watch": "vitest",
-    "audit-check": "npm audit --audit-level=high"
+    "audit-check": "npm audit --audit-level=high",
+    "coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.0",

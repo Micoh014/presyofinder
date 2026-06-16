@@ -30,6 +30,13 @@ export function useItems(storeId, userId) {
     showToast('Slow down — please wait before adding another item.', 'error')
     return false
   }
+  const trimmed = name?.trim ()
+  const parsed = parseFloat (price)
+  
+  if (!trimmed) {
+    showToast ('Item name is required.', 'error')
+    return false
+  }
     if (isNaN(parsed) || parsed <= 0) {
       showToast('Enter a valid price greater than 0.', 'error')
       return false
@@ -80,6 +87,12 @@ export function useItems(storeId, userId) {
     showToast('Too many requests — please wait.', 'error')
     return false
   }
+  if (!itemId) return false
+  const { error } = await deleteItemById (itemId)
+  if (error) {
+    showToast('Error deleting item: ' + error.message, 'error')
+    return false
+  } 
     await fetchItems()
     return true
   }
