@@ -8,13 +8,14 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test" : "vitest run",
+    "test": "vitest run",
     "test:watch": "vitest",
     "audit-check": "npm audit --audit-level=high",
     "coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.0",
+    "framer-motion": "^12.40.0",
     "leaflet": "^1.9.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

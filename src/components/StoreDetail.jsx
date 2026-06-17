@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { motion } from "framer-motion";
 
 import { useModalKeyboard } from "../lib/useModalKeyboard";
 
@@ -41,12 +42,16 @@ export default function StoreDetail({ store, onClose, onDelete, userId }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-3000">
-      <div
+      <motion.div
         ref={modalRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="store-detail-title"
         className="bg-white dark:bg-gray-800 w-full max-w-md rounded-t-3xl max-h-[85vh] overflow-y-auto"
+        initial={{ y: "100%" }}
+        animate={{ y: 0 }}
+        exit={{ y: "100%" }}
+        transition={{ type: "spring", damping: 30, stiffness: 300 }}
       >
         <StoreHeader store={store} onClose={onClose} onDelete={onDelete} />
 
@@ -75,7 +80,7 @@ export default function StoreDetail({ store, onClose, onDelete, userId }) {
 
           <ItemList items={items} onUpdate={updateItem} onDelete={deleteItem} />
         </div>
-      </div>
+      </motion.div>
 
       {showScanner && (
         <ReceiptScanner

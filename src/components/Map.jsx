@@ -1,4 +1,6 @@
 import { useState, useRef, useMemo, useCallback, lazy, Suspense } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+
 import { MapContainer, TileLayer } from "react-leaflet";
 import { showToast } from "../lib/toast";
 import { getDistanceMeters } from "../lib/mapUtils";
@@ -341,29 +343,29 @@ export default function Map({ darkMode, userId }) {
         <div className="absolute top-3 left-0 right-0 z-1000 px-3">
           {/* Tab switcher */}
           <div style={{ width: "100%", marginBottom: "8px" }}>
-            <div className="flex bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-1 gap-1">
+            <div className="flex items-center justify-center gap-2">
               <button
                 onClick={() => setBrowseTab("search")}
                 aria-pressed={browseTab === "search"}
-                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semihold shadow-md transition-all ${
                   browseTab === "search"
                     ? "bg-green-500 text-white"
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                 }`}
               >
-                🔍 Search
+                🔍 <span>Search</span>
               </button>
 
               <button
                 onClick={() => setBrowseTab("basket")}
                 aria-pressed={browseTab === "basket"}
-                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold shadow-md tracking-all ${
                   browseTab === "basket"
-                    ? "bg-green-500 text-white"
-                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                    ? "bg-white dark:bg-gray-800 text-green-600 dark:text-green-400 border-2 border-green-500"
+                    : "bg-white/80 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 border-2 border-transparent"
                 }`}
               >
-                🧺 Basket
+                🧺 <span> Basket </span>
               </button>
             </div>
           </div>
@@ -403,15 +405,17 @@ export default function Map({ darkMode, userId }) {
         </div>
       )}
 
-      {appMode === "log" && (
-        <LogMode
-          stores={stores}
-          storesLoading={storesLoading}
-          userPosition={userPosition}
-          onSelectStore={setSelectedStore}
-          onDropPin={handleDropPin}
-        />
-      )}
+      <AnimatePresence>
+        {appMode === "log" && (
+          <LogMode
+            stores={stores}
+            storesLoading={storesLoading}
+            userPosition={userPosition}
+            onSelectStore={setSelectedStore}
+            onDropPin={handleDropPin}
+          />
+        )}
+      </AnimatePresence>
 
       <BottomBar
         onStats={() => setShowDashboard(true)}
@@ -436,15 +440,25 @@ export default function Map({ darkMode, userId }) {
         />
       )}
 
-      {priceCardStore && appMode === "browse" && (
-        <StorePriceCard
-          store={priceCardStore}
-          userId={userId}
-          onClose={() => setPriceCardStore(null)}
-          onViewFull={handleViewFullFromCard}
-          onGetDirections={handleDirectionsFromCard}
-        />
-      )}
+      <AnimatePresence>
+        {priceCardStore && appMode === "browse" && (
+          <motion.div
+            key="price-card"
+            inital={{ y: 80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 80, opacity: 0 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+          >
+            <StorePriceCard
+              store={priceCardStore}
+              userId={userId}
+              onClose={() => setPriceCardStore(null)}
+              onViewFull={handleViewFullFromCard}
+              onGetDirections={handleDirectionsFromCard}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {searching && searchResults.length > 0 && (
         <SearchResults

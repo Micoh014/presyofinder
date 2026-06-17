@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { getDistanceMeters } from "../../lib/mapUtils";
 import Spinner from "../ui/Spinner";
+import { motion } from "framer-motion";
 
 const NEARBY_RADIUS_METERS = 150;
 
@@ -55,7 +56,13 @@ export default function LogMode({
 
   return (
     // Full-screen overlay — covers the map completely
-    <div className="fixed inset-0 bg-gray-50 dark:bg-gray-900 z-2000 flex flex-col overflow-hidden">
+    <motion.div
+      className="fixed inset-0 bg-gray-50 dark:bg-gray-900 z-2000 flex flex-col overflow-hidden"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 20 }}
+      transition={{ duration: 0.2 }}
+    >
       {/* Section header */}
       <div className="px-4 pt-4 pb-3 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
         <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">
@@ -192,7 +199,7 @@ export default function LogMode({
           + Pin a New Store
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
