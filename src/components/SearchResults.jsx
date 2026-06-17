@@ -20,7 +20,7 @@ export default function SearchResults({
 }) {
   if (!results || results.length === 0) {
     return (
-      <div className="absolute bottom-24 left-0 right-0 px-4 z-1000]">
+      <div className="absolute bottom-24 left-0 right-0 px-4 z-1000">
         <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 text-center">
           <p className="text-2xl mb-2">🔍</p>
           <p className="text-sm text-gray-500 dark:text-gray-400">

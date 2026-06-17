@@ -131,11 +131,11 @@ export default function StoreHeader({ store, onClose, onDelete }) {
           <div>
             <h2
               id="store-detail-title"
-              className="text-xl font-bold text-gray-800 dark:text-white"
+              className="type-heading text-gray-800 dark:text-white"
             >
               {STORE_ICONS[store.type] || "📍"} {store.name}
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">
+            <p className="text-caption text-gray-500 dark:text-gray-400 capitalize">
               {store.type}
             </p>
           </div>

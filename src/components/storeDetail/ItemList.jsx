@@ -95,7 +95,7 @@ export default function ItemList({ items, onUpdate, onDelete }) {
                 )}
               </div>
               <div className="flex items-center gap-3">
-                <p className="font-bold text-green-600 dark:text-green-400">
+                <p className="font-bold text-gray-800 dark:text-gray-100">
                   ₱{parseFloat(item.price).toFixed(2)}
                 </p>
                 <button
