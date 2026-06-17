@@ -24,6 +24,7 @@ import SearchBar from "./SearchBar";
 import SearchResults from "./SearchResults";
 import ConfirmDialog from "./ConfirmDialog";
 import StorePriceCard from "./StorePriceCard";
+import BasketPanel from "./BasketPanel";
 
 import Spinner from "./ui/Spinner";
 import EmptyState from "./ui/EmptyState";
@@ -45,6 +46,7 @@ export default function Map({ darkMode, userId }) {
   const mapRef = useRef(null);
   const [appMode, setAppMode] = useState("browse");
   const [priceCardStore, setPriceCardStore] = useState(null);
+  const [browseTab, setBrowseTab] = useState("search");
 
   const handleStoreClick = useCallback(
     (store) => {
@@ -336,21 +338,67 @@ export default function Map({ darkMode, userId }) {
 
       {appMode === "browse" && (
         <div className="absolute top-3 left-0 right-0 z-1000 px-3">
+          {/* Tab switcher */}
           <div style={{ width: "100%", marginBottom: "8px" }}>
-            <SearchBar
-              onResults={handleSearchResultsWithClose}
-              onClear={handleSearchClearFull}
-              userPosition={userPosition}
-              getDistance={getDistanceMeters}
-              onReshow={reshowSearch}
-              onSortModeChange={setSortMode}
-              userId={userId}
-            />
+            <div className="flex bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-1 gap-1">
+              <button
+                onClick={() => setBrowseTab("search")}
+                aria-pressed={browseTab === "search"}
+                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                  browseTab === "search"
+                    ? "bg-green-500 text-white"
+                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                }`}
+              >
+                🔍 Search
+              </button>
+
+              <button
+                onClick={() => setBrowseTab("basket")}
+                aria-pressed={browseTab === "basket"}
+                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                  browseTab === "basket"
+                    ? "bg-green-500 text-white"
+                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                }`}
+              >
+                🧺 Basket
+              </button>
+            </div>
           </div>
-          <FilterBar
-            activeFilter={activeFilter}
-            onFilterChange={setActiveFilter}
-          />
+
+          {/* Search tab */}
+          {browseTab === "search" && (
+            <>
+              <div style={{ width: "100%", marginBottom: "8px" }}>
+                <SearchBar
+                  onResults={handleSearchResultsWithClose}
+                  onClear={handleSearchClearFull}
+                  userPosition={userPosition}
+                  getDistance={getDistanceMeters}
+                  onReshow={reshowSearch}
+                  onSortModeChange={setSortMode}
+                  userId={userId}
+                />
+              </div>
+
+              <FilterBar
+                activeFilter={activeFilter}
+                onFilterChange={setActiveFilter}
+              />
+            </>
+          )}
+
+          {/* Basket tab */}
+          {browseTab === "basket" && (
+            <BasketPanel
+              onSelectStore={(store) => {
+                if (store && mapRef.current) {
+                  mapRef.current.flyTo([store.latitude, store.longitude], 16);
+                }
+              }}
+            />
+          )}
         </div>
       )}
 
@@ -367,11 +415,15 @@ export default function Map({ darkMode, userId }) {
       <BottomBar
         onStats={() => setShowDashboard(true)}
         onDropPin={handleDropPin}
-        onBasket={() => setShowBasket(true)}
+        onBasket={() => {
+          setAppMode("browse");
+          setBrowseTab("basket");
+        }}
         mode={appMode}
         onModeChange={(m) => {
           setAppMode(m);
           setPriceCardStore(null);
+          setBrowseTab("search");
         }}
       />
 
