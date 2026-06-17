@@ -16,7 +16,7 @@ import StoreMarkers from "./map/StoreMarkers";
 import FilterBar from "./map/FilterBar";
 import BottomBar from "./map/BottomBar";
 import TrailLine from "./map/TrailLine";
-import LogMode from "./map/Logmode";
+import LogMode from "./map/LogMode";
 
 import AddStoreModal from "./AddStoreModal";
 import StoreDetail from "./StoreDetail";
@@ -263,6 +263,7 @@ export default function Map({ darkMode, userId }) {
         ]}
         maxBoundsViscosity={1.0}
         worldCopyJump={false}
+        zoomControl={appMode !== "log"}
         style={{ width: "100%", height: "100%" }}
       >
         <TileLayer

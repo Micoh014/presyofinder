@@ -4,7 +4,7 @@ function BottomBar({ onStats, onDropPin, onBasket, mode, onModeChange }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="absolute bottom-6 left-0 right-0 z-1000 px-4 safe-bottom">
+    <div className="absolute bottom-6 left-0 right-0 z-3000 px-4 safe-bottom">
       <div className="max-w-md mx-auto flex items-center justify-between gap-3">
         {/* More menu */}
         <div className="relative">
