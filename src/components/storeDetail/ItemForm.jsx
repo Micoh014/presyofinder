@@ -92,18 +92,19 @@ export default function ItemForm({ onAdd, onScanReceipt, frequentItems = [] }) {
         />
       </div>
 
-      <Button
-        variant="primary"
-        onClick={handleAdd}
-        disabled={loading}
-        fullWidth
-      >
-        {loading ? "Saving..." : "+ Add Item"}
-      </Button>
-
-      <Button variant="outline" onClick={onScanReceipt} fullWidth>
-        🧾 Scan Receipt Instead
-      </Button>
+      <div className="flex gap-2">
+        <Button variant="outline" onClick={onScanReceipt} fullWidth>
+          🧾 Scan Receipt
+        </Button>
+        <Button
+          variant="primary"
+          onClick={handleAdd}
+          disabled={loading}
+          fullWidth
+        >
+          {loading ? "Saving..." : "+ Add Item"}
+        </Button>
+      </div>
     </div>
   );
 }
