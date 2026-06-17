@@ -4,9 +4,11 @@ export default function Input({
   type = "text",
   value,
   onChange,
+  onKeyDown,
   placeholder,
   srOnlyLabel = false,
   className = "",
+  inputRef,
 }) {
   return (
     <div className="w-full">
@@ -23,10 +25,12 @@ export default function Input({
         </label>
       )}
       <input
+        ref={inputRef}
         id={id}
         type={type}
         value={value}
         onChange={onChange}
+        onKeyDown={onKeyDown}
         placeholder={placeholder}
         className={`w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl px-4 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-green-400 text-sm ${className}`}
       />
