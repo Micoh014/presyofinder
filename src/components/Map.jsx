@@ -23,6 +23,7 @@ import StoreDetail from "./StoreDetail";
 import SearchBar from "./SearchBar";
 import SearchResults from "./SearchResults";
 import ConfirmDialog from "./ConfirmDialog";
+import StorePriceCard from "./StorePriceCard";
 
 import Spinner from "./ui/Spinner";
 import EmptyState from "./ui/EmptyState";
@@ -43,6 +44,18 @@ export default function Map({ darkMode, userId }) {
   const { confirmDialog, showConfirm, hideConfirm } = useConfirmDialog();
   const mapRef = useRef(null);
   const [appMode, setAppMode] = useState("browse");
+  const [priceCardStore, setPriceCardStore] = useState(null);
+
+  const handleStoreClick = useCallback(
+    (store) => {
+      if (appMode === "log") {
+        setSelectedStore(store);
+      } else {
+        setPriceCardStore(store);
+      }
+    },
+    [appMode],
+  );
 
   const {
     stores,
@@ -218,6 +231,24 @@ export default function Map({ darkMode, userId }) {
     [handleSearchResults],
   );
 
+  const handleViewFullFromCard = useCallback(() => {
+    if (!priceCardStore) return;
+    setSelectedStore(priceCardStore);
+    setPriceCardStore(null);
+  }, [priceCardStore]);
+
+  const handleDirectionsFromCard = useCallback(() => {
+    if (!priceCardStore) return;
+    setTrailTarget(priceCardStore);
+    if (userPosition) fetchRoute(userPosition, priceCardStore);
+    if (mapRef.current)
+      mapRef.current.flyTo(
+        [priceCardStore, latitude, priceCardStore.longitude],
+        16,
+      );
+    setPriceCardStore(null);
+  }, [priceCardStore, userPosition, fetchRoute]);
+
   return (
     <div className="relative w-full h-full">
       <MapContainer
@@ -246,7 +277,7 @@ export default function Map({ darkMode, userId }) {
         <StoreMarkers
           stores={filteredStores}
           searchResults={searchResults}
-          onStoreClick={setSelectedStore}
+          onStoreClick={handleStoreClick}
         />
         <TrailLine
           trailTarget={trailTarget}
@@ -338,7 +369,10 @@ export default function Map({ darkMode, userId }) {
         onDropPin={handleDropPin}
         onBasket={() => setShowBasket(true)}
         mode={appMode}
-        onModeChange={setAppMode}
+        onModeChange={(m) => {
+          setAppMode(m);
+          setPriceCardStore(null);
+        }}
       />
 
       {showModal && pinPosition && (
@@ -349,12 +383,13 @@ export default function Map({ darkMode, userId }) {
         />
       )}
 
-      {selectedStore && (
-        <StoreDetail
-          store={selectedStore}
-          onClose={handleCloseStoreDetail}
-          onDelete={handleDeleteStore}
+      {priceCardStore && appMode === "browse" && (
+        <StorePriceCard
+          store={priceCardStore}
           userId={userId}
+          onClose={() => setPriceCardStore(null)}
+          onViewFull={handleViewFullFromCard}
+          onGetDirections={handleDirectionsFromCard}
         />
       )}
 
@@ -401,6 +436,15 @@ export default function Map({ darkMode, userId }) {
           danger={confirmDialog.danger}
           onConfirm={confirmDialog.onConfirm}
           onCancel={hideConfirm}
+        />
+      )}
+
+      {selectedStore && (
+        <StoreDetail
+          store={selectedStore}
+          onClose={handleCloseStoreDetail}
+          onDelete={handleDeleteStore}
+          userId={userId}
         />
       )}
 
