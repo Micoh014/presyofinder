@@ -112,7 +112,7 @@ export default function SearchTab({ userId, userPosition, onSelectStore }) {
                       ` · ${dist < 1000 ? Math.round(dist) + "m" : (dist / 1000).toFixed(1) + "km"} away`}
                   </p>
                 </div>
-                <div className="text-right flex-shrink-0 ml-3">
+                <div className="text-right shrink-0 ml-3">
                   <p
                     className={`text-sm font-bold ${
                       isCheapest

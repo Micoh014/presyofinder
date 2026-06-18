@@ -6,6 +6,8 @@ import { useStoreTiers } from "../../hooks/useStoreTiers";
 import { useLocation } from "../../hooks/useLocation";
 import { createColoredIcon } from "../../lib/mapUtils";
 import SearchTab from "./SearchTab";
+import LogTab from "./LogTab";
+import StorePanelDesktop from "./StorePanelDesktop";
 
 const TIER_COLORS = {
   cheap: "#22c55e",
@@ -86,8 +88,23 @@ export default function DesktopLayout({ darkMode, userId }) {
           )}
 
           {activeTab === "log" && (
-            <div className="text-sm text-gray-400">Log tab — wiring next</div>
+            <LogTab
+              stores={stores}
+              storesLoading={storesLoading}
+              userPosition={userPosition}
+              radiusMeters={radiusMeters}
+              onSelectStore={(store) => {
+                setSelectedStore(store);
+                if (mapRef.current) {
+                  mapRef.current.flyTo([store.latitude, store.longitude], 16);
+                }
+              }}
+              onDropPin={() => {
+                // wiring this to AddStoreModal comes in the next step
+              }}
+            />
           )}
+
           {activeTab === "basket" && (
             <div className="text-sm text-gray-400">
               Basket tab — wiring next
@@ -139,6 +156,18 @@ export default function DesktopLayout({ darkMode, userId }) {
             </Marker>
           ))}
         </MapContainer>
+
+        {selectedStore && (
+          <StorePanelDesktop
+            store={selectedStore}
+            userId={userId}
+            onClose={() => setSelectedStore(null)}
+            onDelete={(storeId) => {
+              // wiring delete confirmation comes in the next step
+              setSelectedStore(null);
+            }}
+          />
+        )}
 
         {storesLoading && (
           <div className="absolute top-4 left-4 bg-white dark:bg-gray-800 px-3 py-2 rounded-full shadow text-xs text-gray-500 dark:text-gray-400">
