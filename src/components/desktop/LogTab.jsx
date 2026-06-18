@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { getDistanceMeters } from "../../lib/mapUtils";
+import { getDistanceMeters } from "../../services/mapUtils";
 import Spinner from "../ui/Spinner";
 
 const STORE_ICONS = {

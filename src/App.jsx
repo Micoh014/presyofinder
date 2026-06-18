@@ -4,7 +4,7 @@ import LoadingScreen from "./components/LoadingScreen";
 import Login from "./components/Login";
 import Onboarding from "./components/Onboarding";
 import Toast from "./components/Toast";
-import { supabase } from "./lib/supabase";
+import { supabase } from "./services/supabase";
 import { useDarkMode } from "./hooks/useDarkMode";
 import OfflineBanner from "./components/OfflineBanner";
 import { useIsDesktop } from "./hooks/useIsDesktop";

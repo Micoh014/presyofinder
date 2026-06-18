@@ -2,8 +2,8 @@ import { useState, useRef, useMemo, useCallback, lazy, Suspense } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { MapContainer, TileLayer } from "react-leaflet";
-import { showToast } from "../lib/toast";
-import { getDistanceMeters } from "../lib/mapUtils";
+import { showToast } from "../services/toast";
+import { getDistanceMeters } from "../services/mapUtils";
 
 import { useStores } from "../hooks/useStores";
 import { useRoute } from "../hooks/useRoute";

@@ -1,4 +1,4 @@
-import { useModalKeyboard } from "../../lib/useModalKeyboard";
+import { useModalKeyboard } from "../../services/useModalKeyboard";
 
 export default function Modal({
   children,

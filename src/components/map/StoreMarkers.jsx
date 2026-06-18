@@ -1,6 +1,6 @@
 import { memo, useMemo } from "react";
 import { Marker, Popup } from "react-leaflet";
-import { getPinColor, createColoredIcon } from "../../lib/mapUtils";
+import { getPinColor, createColoredIcon } from "../../services/mapUtils";
 
 // SingleMarker is memoized — only re-renders if its own props change
 const SingleMarker = memo(function SingleMarker({

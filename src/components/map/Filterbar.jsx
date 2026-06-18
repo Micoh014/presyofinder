@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { STORE_TYPE_FILTERS } from "../../lib/mapUtils";
+import { STORE_TYPE_FILTERS } from "../../services/mapUtils";
 
 function FilterBar({ activeFilter, onFilterChange }) {
   return (

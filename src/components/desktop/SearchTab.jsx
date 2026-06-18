@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { searchItemsByName } from "../../lib/db";
-import { STORE_TYPE_FILTERS, getDistanceMeters } from "../../lib/mapUtils";
+import { searchItemsByName } from "../../services/db";
+import { STORE_TYPE_FILTERS, getDistanceMeters } from "../../services/mapUtils";
 
 export default function SearchTab({ userId, userPosition, onSelectStore }) {
   const [query, setQuery] = useState("");

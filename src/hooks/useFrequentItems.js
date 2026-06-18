@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { searchItemsByName } from '../lib/db'
-import { supabase } from '../lib/supabase'
+import { searchItemsByName } from '../services/db'
+import { supabase } from '../services/supabase'
 
 const FALLBACKS = ['Rice', 'Egg', 'Cooking Oil', 'Sugar', 'Salt', 'Pandesal']
 

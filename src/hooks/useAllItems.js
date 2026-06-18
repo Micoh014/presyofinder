@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getAllItemsForUser } from '../lib/db'
+import { getAllItemsForUser } from '../services/db'
 
 export function useAllItems(userId) {
   const [allItemsByStore, setAllItemsByStore] = useState({})

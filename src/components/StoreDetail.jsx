@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 
-import { useModalKeyboard } from "../lib/useModalKeyboard";
+import { useModalKeyboard } from "../services/useModalKeyboard";
 
 import { useItems } from "../hooks/useItems";
 import { useFrequentItems } from "../hooks/useFrequentItems";

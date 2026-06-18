@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "../lib/supabase";
+import { supabase } from "../services/supabase";
 import Button from "./ui/Button";
 import Input from "./ui/Input";
 

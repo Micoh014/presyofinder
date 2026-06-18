@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
-import { useModalKeyboard } from "../lib/useModalKeyboard";
+import { supabase } from "../services/supabase";
+import { useModalKeyboard } from "../services/useModalKeyboard";
 import ExportData from "../components/ExportData";
 import Button from "../components/ui/Button";
 

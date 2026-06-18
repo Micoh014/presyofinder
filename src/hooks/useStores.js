@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import { showToast } from '../lib/toast'
-import { getStores, insertStore, deleteStoreById } from '../lib/db'
-import { isRateLimited } from '../lib/rateLimit'
+import { showToast } from '../services/toast'
+import { getStores, insertStore, deleteStoreById } from '../services/db'
+import { isRateLimited } from '../services/rateLimit'
 
 export function useStores(userId) {
   const [stores, setStores] = useState([])

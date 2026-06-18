@@ -1,5 +1,5 @@
 import { useState, memo } from "react";
-import { searchItemsByName } from "../lib/db";
+import { searchItemsByName } from "../services/db";
 import Spinner from "./ui/Spinner";
 
 function SearchBar({

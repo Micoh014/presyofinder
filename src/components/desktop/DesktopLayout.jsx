@@ -4,7 +4,7 @@ import { useStores } from "../../hooks/useStores";
 import { useAllItems } from "../../hooks/useAllItems";
 import { useStoreTiers } from "../../hooks/useStoreTiers";
 import { useLocation } from "../../hooks/useLocation";
-import { createColoredIcon } from "../../lib/mapUtils";
+import { createColoredIcon } from "../../services/mapUtils";
 import SearchTab from "./SearchTab";
 import LogTab from "./LogTab";
 import StorePanelDesktop from "./StorePanelDesktop";

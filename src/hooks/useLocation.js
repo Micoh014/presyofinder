@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { showToast } from '../lib/toast'
+import { showToast } from '../services/toast'
 
 export function useLocation() {
   const [userPosition, setUserPosition] = useState(null)

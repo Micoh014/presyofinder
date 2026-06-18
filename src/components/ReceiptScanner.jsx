@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Tesseract from "tesseract.js";
-import { useModalKeyboard } from "../lib/useModalKeyboard";
+import { useModalKeyboard } from "../services/useModalKeyboard";
 import Button from "./ui/Button";
 import Input from "./ui/Input";
 

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { getDistanceMeters } from '../lib/mapUtils'
+import { getDistanceMeters } from '../services/mapUtils'
 
 // Computes avg price per store and assigns a price tier (cheap/mid/expensive)
 // relative to other stores currently in view. Falls back to 'neutral' when

@@ -2,22 +2,22 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { useItems } from './useItems'
 
-vi.mock('../lib/db', () => ({
+vi.mock('../services/db', () => ({
   getItems: vi.fn(),
   insertItem: vi.fn(),
   updateItemById: vi.fn(),
   deleteItemById: vi.fn(),
 }))
 
-vi.mock('../lib/toast', () => ({
+vi.mock('../services/toast', () => ({
   showToast: vi.fn(),
 }))
 
-vi.mock('../lib/rateLimit', () => ({
+vi.mock('../services/rateLimit', () => ({
   isRateLimited: vi.fn(() => false),
 }))
 
-import { getItems, insertItem, updateItemById, deleteItemById } from '../lib/db'
+import { getItems, insertItem, updateItemById, deleteItemById } from '../services/db'
 
 describe('useItems', () => {
   beforeEach(() => {
