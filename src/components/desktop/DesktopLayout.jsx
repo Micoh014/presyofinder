@@ -8,6 +8,12 @@ import { createColoredIcon } from "../../lib/mapUtils";
 import SearchTab from "./SearchTab";
 import LogTab from "./LogTab";
 import StorePanelDesktop from "./StorePanelDesktop";
+import AddStoreModal from "../AddStoreModal";
+import { useConfirmDialog } from "../../hooks/useConfirmDialog";
+import ConfirmDialog from "../ConfirmDialog";
+import LocationMarker from "../map/LocationMarker";
+import { latLng } from "leaflet";
+import BasketPanel from "../BasketPanel";
 
 const TIER_COLORS = {
   cheap: "#22c55e",
@@ -21,10 +27,17 @@ export default function DesktopLayout({ darkMode, userId }) {
   const [radiusMeters, setRadiusMeters] = useState(3000);
   const [selectedStore, setSelectedStore] = useState(null);
   const mapRef = useRef(null);
+  const hasCenteredRef = useRef(false);
 
   const { userPosition, onLocationFound, onLocationError } = useLocation();
-  const { stores, storesLoading, storesError, fetchStores, saveStore } =
-    useStores(userId);
+  const {
+    stores,
+    storesLoading,
+    storesError,
+    fetchStores,
+    saveStore,
+    deleteStore,
+  } = useStores(userId);
   const { allItemsByStore } = useAllItems(userId);
   const { storesInRadius } = useStoreTiers(
     stores,
@@ -32,7 +45,20 @@ export default function DesktopLayout({ darkMode, userId }) {
     userPosition,
     radiusMeters,
   );
+  const [showAddStoreModal, setShowAddStoreModal] = useState(false);
+  const [pinPosition, setPinPosition] = useState(null);
+  const { confirmDialog, showConfirm, hideConfirm } = useConfirmDialog();
 
+  const handleLocationFound = useCallback(
+    (latlng) => {
+      onLocationFound(latlng);
+      if (!hasCenteredRef.current && mapRef.current) {
+        hasCenteredRef.current = true;
+        mapRef.current.flyTo([latlng.lat, latlng.lng], 15);
+      }
+    },
+    [onLocationFound],
+  );
   const tileUrl = darkMode
     ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
     : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
@@ -100,15 +126,22 @@ export default function DesktopLayout({ darkMode, userId }) {
                 }
               }}
               onDropPin={() => {
-                // wiring this to AddStoreModal comes in the next step
+                if (!userPosition) return;
+                setPinPosition(userPosition);
+                setShowAddStoreModal(true);
               }}
             />
           )}
 
           {activeTab === "basket" && (
-            <div className="text-sm text-gray-400">
-              Basket tab — wiring next
-            </div>
+            <BasketPanel
+              onSelectStore={(store) => {
+                setSelectedStore(store);
+                if (mapRef.current) {
+                  mapRef.current.flyTo([store.latitude, store.longitude], 16);
+                }
+              }}
+            />
           )}
         </div>
 
@@ -139,6 +172,10 @@ export default function DesktopLayout({ darkMode, userId }) {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url={tileUrl}
           />
+          <LocationMarker
+            onLocationFound={handleLocationFound}
+            onLocationError={onLocationError}
+          />
           {storesInRadius.map((store) => (
             <Marker
               key={store.id}
@@ -163,9 +200,29 @@ export default function DesktopLayout({ darkMode, userId }) {
             userId={userId}
             onClose={() => setSelectedStore(null)}
             onDelete={(storeId) => {
-              // wiring delete confirmation comes in the next step
-              setSelectedStore(null);
+              showConfirm({
+                title: "Delete Store?",
+                message:
+                  "This will also delete all items logged for this store. This cannot be undone.",
+                danger: true,
+                onConfirm: async () => {
+                  hideConfirm();
+                  const success = await deleteStore(storeId);
+                  if (success) setSelectedStore(null);
+                },
+              });
             }}
+          />
+        )}
+
+        {showAddStoreModal && pinPosition && (
+          <AddStoreModal
+            position={pinPosition}
+            onSave={async (storeData) => {
+              const success = await saveStore(storeData);
+              if (success) setShowAddStoreModal(false);
+            }}
+            onClose={() => setShowAddStoreModal(false)}
           />
         )}
 
@@ -173,6 +230,16 @@ export default function DesktopLayout({ darkMode, userId }) {
           <div className="absolute top-4 left-4 bg-white dark:bg-gray-800 px-3 py-2 rounded-full shadow text-xs text-gray-500 dark:text-gray-400">
             Loading stores...
           </div>
+        )}
+        {confirmDialog && (
+          <ConfirmDialog
+            title={confirmDialog.title}
+            message={confirmDialog.message}
+            confirmLabel={confirmDialog.confirmLabel}
+            danger={confirmDialog.danger}
+            onConfirm={confirmDialog.onConfirm}
+            onCancel={hideConfirm}
+          />
         )}
       </div>
     </div>
