@@ -1,5 +1,11 @@
 import { supabase } from './supabase'
 
+export async function getAllItemsForUser(userId) {
+  return withRetry(() =>
+    supabase.from(TABLES.ITEMS).select('store_id, price').eq('user_id', userId)
+  )
+}
+
 export const TABLES = {
   STORES: 'stores',
   ITEMS: 'items',

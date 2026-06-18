@@ -7,6 +7,8 @@ import Toast from "./components/Toast";
 import { supabase } from "./lib/supabase";
 import { useDarkMode } from "./hooks/useDarkMode";
 import OfflineBanner from "./components/OfflineBanner";
+import { useIsDesktop } from "./hooks/useIsDesktop";
+import DesktopLayout from "./components/desktop/DesktopLayout";
 
 function App() {
   const { darkMode, toggleDarkMode } = useDarkMode();
@@ -14,6 +16,7 @@ function App() {
   const [session, setSession] = useState(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const isDesktop = useIsDesktop();
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
@@ -104,7 +107,11 @@ function App() {
       </div>
 
       <div className="flex-1 relative">
-        <Map darkMode={darkMode} userId={session.user.id} />
+        {isDesktop ? (
+          <DesktopLayout darkMode={darkMode} userId={session.user.id} />
+        ) : (
+          <Map darkMode={darkMode} userId={session.user.id} />
+        )}
       </div>
     </div>
   );
