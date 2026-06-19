@@ -2,6 +2,18 @@ import { useState } from "react";
 import { searchItemsByName } from "../../services/db";
 import { STORE_TYPE_FILTERS, getDistanceMeters } from "../../services/mapUtils";
 
+function formatTimeAgo(dateStr) {
+  const diffMs = Date.now() - new Date(dateStr).getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 60) return `${Math.max(diffMins, 0)}m ago`;
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 30) return `${diffDays}d ago`;
+  const diffMonths = Math.floor(diffDays / 30);
+  return `${diffMonths}mo ago`;
+}
+
 export default function SearchTab({ userId, userPosition, onSelectStore }) {
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
@@ -28,6 +40,13 @@ export default function SearchTab({ userId, userPosition, onSelectStore }) {
   const prices = filteredResults.map((r) => r.price);
   const cheapest = prices.length ? Math.min(...prices) : null;
   const mostExpensive = prices.length ? Math.max(...prices) : null;
+
+  function getTierColor(price) {
+    if (price === cheapest) return "bg-green-500";
+    if (price === mostExpensive && filteredResults.length > 1)
+      return "bg-red-400";
+    return "bg-amber-400";
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -81,6 +100,13 @@ export default function SearchTab({ userId, userPosition, onSelectStore }) {
           </p>
         )}
 
+        {!loading && query.trim() && filteredResults.length > 0 && (
+          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2 px-4">
+            {filteredResults.length} store
+            {filteredResults.length !== 1 ? "s" : ""} found · Sorted by price
+          </p>
+        )}
+
         {!loading &&
           filteredResults.map((item) => {
             const isCheapest = item.price === cheapest;
@@ -102,15 +128,22 @@ export default function SearchTab({ userId, userPosition, onSelectStore }) {
                 onClick={() => onSelectStore(item.stores)}
                 className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-800 text-left"
               >
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-gray-800 dark:text-white truncate">
-                    {item.stores?.name}
-                  </p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">
-                    {item.stores?.type}
-                    {dist !== null &&
-                      ` · ${dist < 1000 ? Math.round(dist) + "m" : (dist / 1000).toFixed(1) + "km"} away`}
-                  </p>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span
+                    className={`w-2 h-2 rounded-full shrink-0 ${getTierColor(item.price)}`}
+                  />
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-gray-800 dark:text-white truncate">
+                      {item.stores?.name}
+                    </p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">
+                      {item.stores?.type}
+                      {dist !== null &&
+                        ` · ${dist < 1000 ? Math.round(dist) + "m" : (dist / 1000).toFixed(1) + "km"} away`}
+                      {item.recorded_at &&
+                        ` · ${formatTimeAgo(item.recorded_at)}`}
+                    </p>
+                  </div>
                 </div>
                 <div className="text-right shrink-0 ml-3">
                   <p
