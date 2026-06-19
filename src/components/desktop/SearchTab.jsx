@@ -63,30 +63,30 @@ export default function SearchTab({ userId, userPosition, onSelectStore }) {
         />
       </div>
 
-      <div className="flex flex-wrap gap-1.5 mb-4">
-        <button
-          onClick={() => setActiveFilter("all")}
-          className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${
-            activeFilter === "all"
-              ? "bg-green-500 text-white border-green-500"
-              : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700"
-          }`}
-        >
-          All
-        </button>
+      <div className="flex flex-wrap gap-1.5 mb-4 items-center">
         {STORE_TYPE_FILTERS.filter((f) => f.value !== "all").map((f) => (
           <button
             key={f.value}
-            onClick={() => setActiveFilter(f.value)}
-            className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${
+            onClick={() =>
+              setActiveFilter(activeFilter === f.value ? "all" : f.value)
+            }
+            className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${
               activeFilter === f.value
                 ? "bg-green-500 text-white border-green-500"
                 : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700"
             }`}
           >
-            {f.icon} {f.label}
+            {f.label}
           </button>
         ))}
+        {activeFilter !== "all" && (
+          <button
+            onClick={() => setActiveFilter("all")}
+            className="px-2.5 py-1 rounded-full text-xs font-semibold text-green-500 hover:text-green-600"
+          >
+            Clear
+          </button>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto -mx-4">
@@ -126,9 +126,9 @@ export default function SearchTab({ userId, userPosition, onSelectStore }) {
               <button
                 key={item.id}
                 onClick={() => onSelectStore(item.stores)}
-                className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-800 text-left"
+                className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-800 text-left gap-3"
               >
-                <div className="flex items-center gap-2.5 min-w-0">
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
                   <span
                     className={`w-2 h-2 rounded-full shrink-0 ${getTierColor(item.price)}`}
                   />
@@ -136,16 +136,14 @@ export default function SearchTab({ userId, userPosition, onSelectStore }) {
                     <p className="text-sm font-semibold text-gray-800 dark:text-white truncate">
                       {item.stores?.name}
                     </p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500">
-                      {item.stores?.type}
+                    <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
+                      {item.name}
                       {dist !== null &&
-                        ` · ${dist < 1000 ? Math.round(dist) + "m" : (dist / 1000).toFixed(1) + "km"} away`}
-                      {item.recorded_at &&
-                        ` · ${formatTimeAgo(item.recorded_at)}`}
+                        ` · ${dist < 1000 ? Math.round(dist) + "m" : (dist / 1000).toFixed(1) + "km"}`}
                     </p>
                   </div>
                 </div>
-                <div className="text-right shrink-0 ml-3">
+                <div className="text-right shrink-0">
                   <p
                     className={`text-sm font-bold ${
                       isCheapest
@@ -157,6 +155,11 @@ export default function SearchTab({ userId, userPosition, onSelectStore }) {
                   >
                     ₱{parseFloat(item.price).toFixed(2)}
                   </p>
+                  {item.recorded_at && (
+                    <p className="text-xs text-gray-400 dark:text-gray-500">
+                      {formatTimeAgo(item.recorded_at)}
+                    </p>
+                  )}
                 </div>
               </button>
             );
