@@ -203,6 +203,7 @@ export default function DesktopLayout({
 
             {activeTab === "basket" && (
               <BasketPanel
+                userId={userId}
                 onSelectStore={(store) => {
                   setSelectedStore(store);
                   if (mapRef.current) {

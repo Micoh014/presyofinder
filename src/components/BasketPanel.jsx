@@ -1,207 +1,237 @@
 import { supabase } from "../services/supabase";
-import Button from "./ui/Button";
-import Input from "./ui/Input";
 import Spinner from "./ui/Spinner";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
-export default function BasketPanel({ onSelectStore, onItemsChange }) {
-  const [basketItems, setBasketItems] = useState([{ name: "" }]);
-  const [results, setResults] = useState(null);
+export default function BasketPanel({ onSelectStore, onItemsChange, userId }) {
+  const [basketItems, setBasketItems] = useState([]);
+  const [inputValue, setInputValue] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [bestStore, setBestStore] = useState(null);
+  const [itemResults, setItemResults] = useState([]);
+  const inputRef = useRef(null);
 
   useEffect(() => {
-    const count = basketItems.filter((i) => i.name.trim()).length;
-    onItemsChange?.(count);
+    onItemsChange?.(basketItems.length);
   }, [basketItems, onItemsChange]);
 
-  function handleItemChange(index, value) {
-    const updated = [...basketItems];
-    updated[index].name = value;
-    setBasketItems(updated);
-  }
+  useEffect(() => {
+    if (basketItems.length > 0) findCheapest();
+  }, [basketItems]);
 
-  function handleAddRow() {
-    setBasketItems([...basketItems, { name: "" }]);
-  }
+  useEffect(() => {
+    async function loadSuggestions() {
+      const { data } = await supabase
+        .from("items")
+        .select("name")
+        .eq("user_id", userId)
+        .order("name");
+      if (data) {
+        const unique = [...new Set(data.map((i) => i.name))];
+        setSuggestions(unique);
+      }
+    }
+    if (userId) loadSuggestions();
+  }, [userId]);
 
-  function handleRemoveRow(index) {
-    setBasketItems(basketItems.filter((_, i) => i !== index));
-  }
+  const filteredSuggestions = inputValue.trim()
+    ? suggestions.filter((s) =>
+        s.toLowerCase().includes(inputValue.toLowerCase()),
+      )
+    : suggestions.slice(0, 8);
 
-  async function handleFindCheapest() {
-    const names = basketItems.map((i) => i.name.trim()).filter(Boolean);
-    if (names.length === 0) return;
-
+  async function findCheapest() {
+    if (basketItems.length === 0) {
+      setBestStore(null);
+      setItemResults([]);
+      return;
+    }
     setLoading(true);
-    setResults(null);
 
     const queries = await Promise.all(
-      names.map((name) =>
+      basketItems.map((name) =>
         supabase
           .from("items")
           .select("*, stores(*)")
+          .eq("user_id", userId)
           .ilike("name", `%${name}%`)
           .order("price", { ascending: true }),
       ),
     );
 
-    const itemResults = names.map((name, i) => {
+    const resolved = basketItems.map((name, i) => {
       const data = queries[i].data || [];
       const storeMap = {};
       data.forEach((item) => {
-        const storeId = item.store_id;
-        if (!storeMap[storeId] || item.price < storeMap[storeId].price) {
-          storeMap[storeId] = item;
-        }
+        const sid = item.store_id;
+        if (!storeMap[sid] || item.price < storeMap[sid].price)
+          storeMap[sid] = item;
       });
       return {
         name,
-        options: Object.values(storeMap).sort((a, b) => a.price - b.price),
+        cheapest:
+          Object.values(storeMap).sort((a, b) => a.price - b.price)[0] || null,
       };
     });
 
+    setItemResults(resolved);
+
     const storeScores = {};
-    itemResults.forEach((item) => {
-      item.options.forEach((option) => {
-        const storeId = option.store_id;
-        if (!storeScores[storeId]) {
-          storeScores[storeId] = {
-            store: option.stores,
-            total: 0,
-            items: [],
-            count: 0,
-          };
-        }
-        const already = storeScores[storeId].items.find(
-          (i) => i.itemName === item.name,
-        );
-        if (!already) {
-          storeScores[storeId].total += parseFloat(option.price);
-          storeScores[storeId].items.push({
-            itemName: item.name,
-            foundName: option.name,
-            price: option.price,
-          });
-          storeScores[storeId].count += 1;
-        }
-      });
+    resolved.forEach(({ name, cheapest }) => {
+      if (!cheapest) return;
+      const sid = cheapest.store_id;
+      if (!storeScores[sid]) {
+        storeScores[sid] = { store: cheapest.stores, total: 0, count: 0 };
+      }
+      storeScores[sid].total += parseFloat(cheapest.price);
+      storeScores[sid].count += 1;
     });
 
-    const sortedStores = Object.values(storeScores).sort(
-      (a, b) => b.count - a.count || a.total - b.total,
-    );
+    const best =
+      Object.values(storeScores).sort(
+        (a, b) => b.count - a.count || a.total - b.total,
+      )[0] || null;
 
-    setResults({ itemResults, sortedStores, totalItems: names.length });
+    setBestStore(best);
     setLoading(false);
   }
 
+  function addItem(name) {
+    const trimmed = name.trim();
+    if (!trimmed || basketItems.includes(trimmed)) return;
+    setBasketItems((prev) => [...prev, trimmed]);
+    setInputValue("");
+    setShowSuggestions(false);
+  }
+
+  function removeItem(name) {
+    setBasketItems((prev) => prev.filter((i) => i !== name));
+  }
+
   return (
-    <div className="w-full bg-white dark:bg-gray-800 rounded-l overflow-hidden">
-      {/* Input section */}
-      <div className="p-4 space-y-3">
-        <div className="space-y-2">
-          {basketItems.map((item, index) => (
-            <div key={index} className="flex gap-2 items-center">
-              <Input
-                id={`basket-item-${index}`}
-                label={`Item ${index + 1}`}
-                srOnlyLabel
-                placeholder={`Item ${index + 1} (e.g. Rice)`}
-                value={item.name}
-                onChange={(e) => handleItemChange(index, e.target.value)}
-              />
-              {basketItems.length > 1 && (
+    <div className="flex flex-col h-full">
+      <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">
+        My Grocery Basket
+      </p>
+
+      <div className="relative flex gap-2 mb-3 shrink-0">
+        <div className="relative flex-1">
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputValue}
+            onChange={(e) => {
+              setInputValue(e.target.value);
+              setShowSuggestions(true);
+            }}
+            onFocus={() => setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") addItem(inputValue);
+            }}
+            placeholder="Add an item..."
+            className="w-full bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 placeholder-gray-400 dark:placeholder-gray-500"
+          />
+          {showSuggestions && filteredSuggestions.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-50 overflow-hidden">
+              {filteredSuggestions.map((s) => (
                 <button
-                  onClick={() => handleRemoveRow(index)}
-                  aria-label={`Remove item ${index + 1}`}
-                  className="text-red-400 text-xl p-1 shrink-0"
+                  key={s}
+                  onMouseDown={() => addItem(s)}
+                  className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
-                  ×
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <button
-          onClick={handleAddRow}
-          className="w-full border border-dashed border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 rounded-xl py-2 text-sm hover:border-green-400 hover:text-green-500 transition-colors"
-        >
-          + Add item
-        </button>
-
-        <Button
-          variant="primary"
-          onClick={handleFindCheapest}
-          disabled={loading}
-          fullWidth
-        >
-          {loading ? (
-            <span className="flex items-center justify-center gap-2">
-              <Spinner
-                size="sm"
-                className="border-white border-t-transparent"
-              />
-              Searching...
-            </span>
-          ) : (
-            "🔍 Find Cheapest Store"
-          )}
-        </Button>
-      </div>
-
-      {/* Results */}
-      {results && (
-        <div className="border-t border-gray-100 dark:border-gray-700 max-h-64 overflow-y-auto">
-          {results.sortedStores.length === 0 ? (
-            <p className="text-sm text-orange-400 text-center py-4 px-4">
-              ⚠️ No stores found with these items.
-            </p>
-          ) : (
-            <div className="p-3 space-y-2">
-              {results.sortedStores.map((storeResult, i) => (
-                <button
-                  key={i}
-                  onClick={() => onSelectStore(storeResult.store)}
-                  className={`w-full rounded-xl border p-3 text-left transition-colors hover:opacity-90 ${
-                    i === 0
-                      ? "border-green-400 bg-green-50 dark:bg-green-900/30"
-                      : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700"
-                  }`}
-                >
-                  <div className="flex justify-between items-start mb-1">
-                    <div>
-                      <p className="font-bold text-gray-800 dark:text-white text-sm">
-                        {i === 0 && "⭐ "}
-                        {storeResult.store?.name}
-                      </p>
-                      <p className="text-xs text-gray-400 capitalize">
-                        {storeResult.store?.type}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-green-600 dark:text-green-400">
-                        ₱{storeResult.total.toFixed(2)}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {storeResult.count}/{results.totalItems} items
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-x-3 gap-y-0.5">
-                    {storeResult.items.map((item, j) => (
-                      <span
-                        key={j}
-                        className="text-xs text-gray-500 dark:text-gray-400"
-                      >
-                        {item.foundName} ₱{parseFloat(item.price).toFixed(2)}
-                      </span>
-                    ))}
-                  </div>
+                  {s}
                 </button>
               ))}
             </div>
           )}
+        </div>
+        <button
+          onClick={() => addItem(inputValue)}
+          className="shrink-0 w-9 h-9 bg-green-500 hover:bg-green-600 text-white rounded-xl flex items-center justify-center text-lg font-bold"
+        >
+          +
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto -mx-4 px-4 space-y-2 min-h-0">
+        {basketItems.length === 0 && (
+          <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-6">
+            Add items to find the cheapest store nearby.
+          </p>
+        )}
+        {basketItems.map((name) => {
+          const result = itemResults.find((r) => r.name === name);
+          const cheapest = result?.cheapest;
+          return (
+            <div
+              key={name}
+              className="rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden"
+            >
+              <div className="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-gray-800/60">
+                <p className="text-sm font-semibold text-gray-800 dark:text-white">
+                  {name}
+                </p>
+                <button
+                  onClick={() => removeItem(name)}
+                  className="text-gray-400 hover:text-red-400 text-lg leading-none"
+                >
+                  ×
+                </button>
+              </div>
+              {cheapest ? (
+                <div className="flex items-center justify-between px-3 py-2 bg-white dark:bg-gray-900">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className="text-green-500 text-xs">📍</span>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                      {cheapest.stores?.name}
+                      {cheapest.stores?.distance !== undefined &&
+                        ` · ${cheapest.stores.distance < 1000 ? Math.round(cheapest.stores.distance) + "m" : (cheapest.stores.distance / 1000).toFixed(1) + "km"}`}
+                    </p>
+                  </div>
+                  <p className="text-xs font-bold text-green-500 shrink-0 ml-2">
+                    ₱{parseFloat(cheapest.price).toFixed(2)}
+                  </p>
+                </div>
+              ) : loading ? (
+                <div className="px-3 py-2">
+                  <Spinner size="sm" />
+                </div>
+              ) : (
+                <div className="px-3 py-2">
+                  <p className="text-xs text-gray-400">No price found nearby</p>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {bestStore && (
+        <div
+          onClick={() => onSelectStore(bestStore.store)}
+          className="mt-3 shrink-0 bg-gray-900 dark:bg-gray-950 rounded-xl px-4 py-3 cursor-pointer hover:bg-gray-800 dark:hover:bg-gray-900 transition-colors"
+        >
+          <div className="flex items-center justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold text-green-400 uppercase tracking-widest mb-0.5">
+                Best One-Stop Shop
+              </p>
+              <p className="text-sm font-bold text-white truncate">
+                {bestStore.store?.name}
+              </p>
+              <p className="text-xs text-gray-400">Cheapest possible total</p>
+            </div>
+            <div className="text-right shrink-0 ml-3">
+              <p className="text-xs text-gray-400 mb-0.5">
+                {bestStore.count}/{basketItems.length} items
+              </p>
+              <p className="text-lg font-bold text-white">
+                ₱{bestStore.total.toFixed(2)}
+              </p>
+            </div>
+          </div>
         </div>
       )}
     </div>
