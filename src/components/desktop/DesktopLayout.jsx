@@ -20,6 +20,7 @@ import ConfirmDialog from "../ConfirmDialog";
 import LocationMarker from "../map/LocationMarker";
 import { latLng } from "leaflet";
 import BasketPanel from "../BasketPanel";
+import StorePriceCard from "../StorePriceCard";
 
 const TIER_COLORS = {
   cheap: "#22c55e",
@@ -34,7 +35,6 @@ export default function DesktopLayout({ darkMode, userId }) {
   const [selectedStore, setSelectedStore] = useState(null);
   const mapRef = useRef(null);
   const hasCenteredRef = useRef(false);
-
   const { userPosition, onLocationFound, onLocationError } = useLocation();
   const {
     stores,
@@ -54,6 +54,7 @@ export default function DesktopLayout({ darkMode, userId }) {
   const [showAddStoreModal, setShowAddStoreModal] = useState(false);
   const [pinPosition, setPinPosition] = useState(null);
   const { confirmDialog, showConfirm, hideConfirm } = useConfirmDialog();
+  const [previewStore, setPreviewStore] = useState(null);
 
   const handleLocationFound = useCallback(
     (latlng) => {
@@ -70,7 +71,7 @@ export default function DesktopLayout({ darkMode, userId }) {
     : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 
   const handlePinClick = useCallback((store) => {
-    setSelectedStore(store);
+    setPreviewStore(store);
   }, []);
 
   return (
@@ -191,17 +192,27 @@ export default function DesktopLayout({ darkMode, userId }) {
               position={[store.latitude, store.longitude]}
               icon={createColoredIcon(TIER_COLORS[store.tier])}
               eventHandlers={{ click: () => handlePinClick(store) }}
-            >
-              <Popup>
-                <strong>{store.name}</strong>
-                <br />
-                {store.avgPrice
-                  ? `Avg ₱${store.avgPrice.toFixed(2)}`
-                  : "No prices logged yet"}
-              </Popup>
-            </Marker>
+            ></Marker>
           ))}
         </MapContainer>
+
+        {previewStore && !selectedStore && (
+          <StorePriceCard
+            store={previewStore}
+            userId={userId}
+            onClose={() => setPreviewStore(null)}
+            onViewFull={() => {
+              setSelectedStore(previewStore);
+              setPreviewStore(null);
+            }}
+            onGetDirections={() => {
+              window.open(
+                `https://www.google.com/maps/dir/?api=1&destination=${previewStore.latitude},${previewStore.longitude}`,
+                "_blank",
+              );
+            }}
+          />
+        )}
 
         {selectedStore && (
           <StorePanelDesktop
