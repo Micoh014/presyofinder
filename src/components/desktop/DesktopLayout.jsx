@@ -61,6 +61,7 @@ export default function DesktopLayout({
   const [pinPosition, setPinPosition] = useState(null);
   const { confirmDialog, showConfirm, hideConfirm } = useConfirmDialog();
   const [previewStore, setPreviewStore] = useState(null);
+  const [basketCount, setBasketCount] = useState(0);
 
   const handleLocationFound = useCallback(
     (latlng) => {
@@ -118,22 +119,47 @@ export default function DesktopLayout({
           }}
           className="bg-white dark:bg-gray-900"
         >
+          <div className="px-4 pt-4 pb-3 flex items-center gap-2.5 border-b border-gray-100 dark:border-gray-800">
+            <div className="w-8 h-8 bg-green-500 rounded-xl flex items-center justify-center shadow-sm shadow-green-200">
+              <span className="text-white text-sm">📍</span>
+            </div>
+            <div>
+              <h1 className="text-sm font-bold text-gray-900 dark:text-white leading-none tracking-tight">
+                PresyoFinder
+              </h1>
+              <p className="text-xs text-gray-400 dark:text-gray-500 leading-none mt-0.5">
+                Track prices. Find deals.
+              </p>
+            </div>
+          </div>
+
           <div className="flex border-b border-gray-100 dark:border-gray-800">
             {[
-              { key: "search", label: "🔍 Search" },
-              { key: "log", label: "📝 Log" },
-              { key: "basket", label: "🧺 Basket" },
+              { key: "search", icon: "🔍", label: "Search" },
+              { key: "log", icon: "📝", label: "Log" },
+              {
+                key: "basket",
+                icon: "🧺",
+                label: "Basket",
+                badge: basketCount,
+              },
             ].map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex-1 py-3 text-sm font-semibold border-b-2 transition-colors ${
+                className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-sm font-semibold border-b-2 transition-colors ${
                   activeTab === tab.key
                     ? "border-green-500 text-green-600 dark:text-green-400"
                     : "border-transparent text-gray-500 dark:text-gray-400"
                 }`}
               >
-                {tab.label}
+                <span>{tab.icon}</span>
+                <span>{tab.label}</span>
+                {tab.badge > 0 && (
+                  <span className="bg-green-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                    {tab.badge}
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -176,6 +202,7 @@ export default function DesktopLayout({
                     mapRef.current.flyTo([store.latitude, store.longitude], 16);
                   }
                 }}
+                onItemsChange={setBasketCount}
               />
             )}
           </div>

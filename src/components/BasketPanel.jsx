@@ -1,13 +1,18 @@
-import { useState } from "react";
 import { supabase } from "../services/supabase";
 import Button from "./ui/Button";
 import Input from "./ui/Input";
 import Spinner from "./ui/Spinner";
+import { useState, useEffect } from "react";
 
-export default function BasketPanel({ onSelectStore }) {
+export default function BasketPanel({ onSelectStore, onItemsChange }) {
   const [basketItems, setBasketItems] = useState([{ name: "" }]);
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const count = basketItems.filter((i) => i.name.trim()).length;
+    onItemsChange?.(count);
+  }, [basketItems, onItemsChange]);
 
   function handleItemChange(index, value) {
     const updated = [...basketItems];
