@@ -21,6 +21,7 @@ export default function LogTab({
   onDropPin,
 }) {
   const [search, setSearch] = useState("");
+  const [selectedId, setSelectedId] = useState(null);
 
   const inRadius = useMemo(() => {
     if (!userPosition) return [];
@@ -89,17 +90,40 @@ export default function LogTab({
               : "No stores in this radius."}
           </p>
         ) : (
-          list.map((store) => (
-            <button
-              key={store.id}
-              onClick={() => onSelectStore(store)}
-              className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-800 text-left"
-            >
-              <div className="flex items-center gap-3 min-w-0">
+          list.map((store) => {
+            const isSelected = selectedId === store.id;
+            return (
+              <button
+                key={store.id}
+                onClick={() => {
+                  setSelectedId(store.id);
+                  onSelectStore(store);
+                }}
+                className={`w-full flex items-center gap-3 px-4 py-3 mx-4 mb-2 rounded-xl text-left transition-all ${
+                  isSelected
+                    ? "ring-2 ring-green-400 bg-green-50 dark:bg-green-900/20"
+                    : "border border-transparent hover:bg-gray-50 dark:hover:bg-gray-800"
+                }`}
+                style={{ width: "calc(100% - 2rem)" }}
+              >
+                {/* Radio indicator */}
+                <span
+                  className={`shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                    isSelected
+                      ? "border-green-500"
+                      : "border-gray-300 dark:border-gray-600"
+                  }`}
+                >
+                  {isSelected && (
+                    <span className="w-2 h-2 rounded-full bg-green-500" />
+                  )}
+                </span>
+
                 <span className="text-xl shrink-0">
                   {STORE_ICONS[store.type] || "📍"}
                 </span>
-                <div className="min-w-0">
+
+                <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-gray-800 dark:text-white truncate">
                     {store.name}
                   </p>
@@ -107,14 +131,15 @@ export default function LogTab({
                     {store.type}
                   </p>
                 </div>
-              </div>
-              {store.distance !== undefined && (
-                <p className="text-xs font-medium text-green-500 shrink-0 ml-2">
-                  {formatDistance(store.distance)}
-                </p>
-              )}
-            </button>
-          ))
+
+                {store.distance !== undefined && (
+                  <p className="text-xs font-medium text-green-500 shrink-0 ml-2">
+                    {formatDistance(store.distance)}
+                  </p>
+                )}
+              </button>
+            );
+          })
         )}
       </div>
 
