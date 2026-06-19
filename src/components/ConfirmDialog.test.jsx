@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import ConfirmDialog from "./ConfirmDialog";
 
-vi.mock("../lib/useModalKeyboard", () => ({
+vi.mock("../services/useModalKeyboard", () => ({
   useModalKeyboard: () => ({ current: null }),
 }));
 

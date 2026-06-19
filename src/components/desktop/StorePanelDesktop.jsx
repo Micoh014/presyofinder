@@ -1,10 +1,11 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useItems } from "../../hooks/useItems";
 import { useFrequentItems } from "../../hooks/useFrequentItems";
 import ItemForm from "../storeDetail/ItemForm";
 import ItemList from "../storeDetail/ItemList";
 import Spinner from "../ui/Spinner";
 import EmptyState from "../ui/EmptyState";
+import ReceiptScanner from "../ReceiptScanner";
 
 const STORE_ICONS = {
   "sari-sari": "🏪",
@@ -22,13 +23,21 @@ export default function StorePanelDesktop({
   onClose,
   onDelete,
 }) {
-  const { items, itemsLoading, itemsError, addItem, updateItem, deleteItem } =
-    useItems(store.id, userId);
+  const {
+    items,
+    itemsLoading,
+    itemsError,
+    addItem,
+    updateItem,
+    deleteItem,
+    addItemsBatch,
+  } = useItems(store.id, userId);
   const { frequentItems } = useFrequentItems(userId);
 
   const handleDelete = useCallback(() => {
     onDelete(store.id);
   }, [onDelete, store.id]);
+  const [showReceiptScanner, setShowReceiptScanner] = useState(false);
 
   return (
     <div
@@ -68,7 +77,7 @@ export default function StorePanelDesktop({
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         <ItemForm
           onAdd={addItem}
-          onScanReceipt={() => {}}
+          onScanReceipt={() => setShowReceiptScanner(true)}
           frequentItems={frequentItems}
         />
 
@@ -98,6 +107,16 @@ export default function StorePanelDesktop({
         >
           Delete store
         </button>
+
+        {showReceiptScanner && (
+          <ReceiptScanner
+            onItemsFound={async (foundItems) => {
+              await addItemsBatch(foundItems);
+              setShowReceiptScanner(false);
+            }}
+            onClose={() => setShowReceiptScanner(false)}
+          />
+        )}
       </div>
     </div>
   );

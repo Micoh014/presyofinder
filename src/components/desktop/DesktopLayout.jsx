@@ -1,5 +1,11 @@
 import { useState, useRef, useCallback } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  ZoomControl,
+} from "react-leaflet";
 import { useStores } from "../../hooks/useStores";
 import { useAllItems } from "../../hooks/useAllItems";
 import { useStoreTiers } from "../../hooks/useStoreTiers";
@@ -167,11 +173,14 @@ export default function DesktopLayout({ darkMode, userId }) {
           zoom={13}
           style={{ width: "100%", height: "100%" }}
           ref={mapRef}
+          zoomControl={false}
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url={tileUrl}
           />
+          <ZoomControl position="bottomright" />
+
           <LocationMarker
             onLocationFound={handleLocationFound}
             onLocationError={onLocationError}

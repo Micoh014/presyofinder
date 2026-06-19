@@ -91,7 +91,7 @@ export default function BasketPanel({ onSelectStore }) {
   }
 
   return (
-    <div className="w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
+    <div className="w-full bg-white dark:bg-gray-800 rounded-l overflow-hidden">
       {/* Input section */}
       <div className="p-4 space-y-3">
         <div className="space-y-2">
