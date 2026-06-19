@@ -22,6 +22,7 @@ import { latLng } from "leaflet";
 import BasketPanel from "../BasketPanel";
 import StorePriceCard from "../StorePriceCard";
 import DesktopTopBar from "./DesktopTopBar";
+import { useItems } from "../../hooks/useItems";
 
 const TIER_COLORS = {
   cheap: "#22c55e",
@@ -57,6 +58,8 @@ export default function DesktopLayout({
     userPosition,
     radiusMeters,
   );
+  const [logStoreId, setLogStoreId] = useState(null);
+  const { addItem: addLogItem } = useItems(logStoreId, userId);
   const [showAddStoreModal, setShowAddStoreModal] = useState(false);
   const [pinPosition, setPinPosition] = useState(null);
   const { confirmDialog, showConfirm, hideConfirm } = useConfirmDialog();
@@ -185,10 +188,14 @@ export default function DesktopLayout({
                 userPosition={userPosition}
                 radiusMeters={radiusMeters}
                 onSelectStore={(store) => {
-                  setSelectedStore(store);
+                  setLogStoreId(store.id);
                   if (mapRef.current) {
                     mapRef.current.flyTo([store.latitude, store.longitude], 16);
                   }
+                }}
+                onSubmitItem={async (name, price) => {
+                  const ok = await addLogItem(name, price);
+                  return ok;
                 }}
                 onDropPin={handleDropPin}
               />
