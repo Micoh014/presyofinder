@@ -33,7 +33,6 @@ import EmptyState from "./ui/EmptyState";
 
 // Code-split heavy panels — only loaded when first opened
 const Dashboard = lazy(() => import("../pages/Dashboard"));
-const Basket = lazy(() => import("./Basket"));
 
 export default function Map({ darkMode, userId }) {
   const { userPosition, onLocationFound, onLocationError } = useLocation();
@@ -41,7 +40,6 @@ export default function Map({ darkMode, userId }) {
   const [showModal, setShowModal] = useState(false);
   const [selectedStore, setSelectedStore] = useState(null);
   const [showDashboard, setShowDashboard] = useState(false);
-  const [showBasket, setShowBasket] = useState(false);
   const [activeFilter, setActiveFilter] = useState("all");
   const [trailTarget, setTrailTarget] = useState(null);
   const { confirmDialog, showConfirm, hideConfirm } = useConfirmDialog();
@@ -247,7 +245,7 @@ export default function Map({ darkMode, userId }) {
     if (userPosition) fetchRoute(userPosition, priceCardStore);
     if (mapRef.current)
       mapRef.current.flyTo(
-        [priceCardStore, latitude, priceCardStore.longitude],
+        [priceCardStore.latitude, priceCardStore.longitude],
         16,
       );
     setPriceCardStore(null);
@@ -347,7 +345,7 @@ export default function Map({ darkMode, userId }) {
               <button
                 onClick={() => setBrowseTab("search")}
                 aria-pressed={browseTab === "search"}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semihold shadow-md transition-all ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold shadow-md transition-all ${
                   browseTab === "search"
                     ? "bg-green-500 text-white"
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
@@ -480,18 +478,6 @@ export default function Map({ darkMode, userId }) {
           }
         >
           <Dashboard onClose={() => setShowDashboard(false)} userId={userId} />
-        </Suspense>
-      )}
-
-      {showBasket && (
-        <Suspense
-          fallback={
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-1000">
-              <Spinner size="lg" />
-            </div>
-          }
-        >
-          <Basket onClose={() => setShowBasket(false)} />
         </Suspense>
       )}
 
