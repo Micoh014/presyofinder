@@ -3,6 +3,7 @@ import Tesseract from "tesseract.js";
 import { useModalKeyboard } from "../services/useModalKeyboard";
 import Button from "./ui/Button";
 import Input from "./ui/Input";
+import { Receipt, AlertTriangle } from "lucide-react";
 
 export default function ReceiptScanner({ onItemsFound, onClose }) {
   const [image, setImage] = useState(null);
@@ -89,10 +90,12 @@ export default function ReceiptScanner({ onItemsFound, onClose }) {
         <div className="flex justify-between items-center">
           <h2
             id="receipt-title"
-            className="text-xl font-bold text-gray-800 dark:text-white"
+            className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2"
           >
-            🧾 Scan Receipt
+            <Receipt size={20} />
+            Scan Receipt
           </h2>
+
           <Button
             variant="ghost"
             onClick={onClose}
@@ -139,7 +142,7 @@ export default function ReceiptScanner({ onItemsFound, onClose }) {
 
         {step === "scanning" && (
           <div className="flex flex-col items-center justify-center py-12 space-y-3">
-            <div className="text-4xl animate-pulse">🧾</div>
+            <Receipt size={36} className="animate-pulse text-gray-400" />
             <p className="text-gray-500 dark:text-gray-400 text-sm">
               Reading receipt, please wait...
             </p>
@@ -154,8 +157,9 @@ export default function ReceiptScanner({ onItemsFound, onClose }) {
             </p>
 
             {items.length === 0 && (
-              <p className="text-sm text-orange-400">
-                ⚠️ No items detected. Try a clearer photo or add items manually
+              <p className="text-sm text-orange-400 flex items-center gap-1.5">
+                <AlertTriangle size={14} />
+                No items detected. Try a clearer photo or add items manually
                 below.
               </p>
             )}

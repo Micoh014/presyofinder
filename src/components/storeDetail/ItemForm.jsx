@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
+import { Receipt } from "lucide-react";
 
 export default function ItemForm({ onAdd, onScanReceipt, frequentItems = [] }) {
   const [itemName, setItemName] = useState("");
@@ -94,7 +95,9 @@ export default function ItemForm({ onAdd, onScanReceipt, frequentItems = [] }) {
 
       <div className="flex gap-2">
         <Button variant="outline" onClick={onScanReceipt} fullWidth>
-          🧾 Scan Receipt
+          <span className="flex items-center justify-center gap-1.5">
+            <Receipt size={15} /> Scan Receipt
+          </span>
         </Button>
         <Button
           variant="primary"

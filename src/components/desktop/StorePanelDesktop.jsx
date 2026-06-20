@@ -5,6 +5,8 @@ import ItemForm from "../storeDetail/ItemForm";
 import ItemList from "../storeDetail/ItemList";
 import Spinner from "../ui/Spinner";
 import ReceiptScanner from "../ReceiptScanner";
+import { MapPin } from "lucide-react";
+import { STORE_TYPE_ICONS } from "../../services/mapUtils";
 
 const STORE_ICONS = {
   "sari-sari": "🏪",
@@ -52,9 +54,16 @@ export default function StorePanelDesktop({
     >
       <div className="px-4 py-4 border-b border-gray-100 dark:border-gray-800 flex items-start justify-between shrink-0">
         <div className="flex items-center gap-3 min-w-0">
-          <span className="text-2xl shrink-0">
-            {STORE_ICONS[store.type] || "📍"}
-          </span>
+          {(() => {
+            const Icon = STORE_TYPE_ICONS[store.type] || MapPin;
+            return (
+              <Icon
+                size={22}
+                className="shrink-0 text-gray-600 dark:text-gray-300"
+                strokeWidth={1.75}
+              />
+            );
+          })()}
           <div className="min-w-0">
             <p className="font-bold text-gray-800 dark:text-white text-base truncate">
               {store.name}

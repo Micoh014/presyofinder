@@ -84,12 +84,13 @@ export default function SearchTab({
             onClick={() =>
               setActiveFilter(activeFilter === f.value ? "all" : f.value)
             }
-            className={`px-2.5 py-1 rounded-full text-xs font-semibold border-2 transition-colors ${
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border-2 transition-colors ${
               activeFilter === f.value
                 ? "bg-white dark:bg-gray-800 text-green-600 dark:text-green-400 border-green-500"
                 : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700"
             }`}
           >
+            <f.Icon size={12} strokeWidth={2.25} />
             {f.label}
           </button>
         ))}

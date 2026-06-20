@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useItems } from "../hooks/useItems";
 import Spinner from "./ui/Spinner";
+import { MapPin, Navigation } from "lucide-react";
+import { STORE_TYPE_ICONS } from "../services/mapUtils";
+import { AlertTriangle } from "lucide-react";
 
 const STORE_ICONS = {
   "sari-sari": "🏪",
@@ -114,7 +117,16 @@ export default function StorePriceCard({
       <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
         <div className="px-4 pt-4 pb-3 flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">{STORE_ICONS[store.type] || "📍"}</span>
+            {(() => {
+              const Icon = STORE_TYPE_ICONS[store.type] || MapPin;
+              return (
+                <Icon
+                  size={24}
+                  className="text-gray-600 dark:text-gray-300"
+                  strokeWidth={1.75}
+                />
+              );
+            })()}
             <div>
               <p className="font-bold text-gray-800 dark:text-white text-base leading-tight">
                 {store.name}
@@ -136,11 +148,10 @@ export default function StorePriceCard({
         <PriceList storeId={store.id} userId={userId} />
 
         <div className="px-4 pb-4 pt-2 flex gap-2 border-t border-gray-100 dark:border-gray-700 mt-1">
-          <button
-            onClick={onGetDirections}
-            className="flex-1 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 rounded-xl py-2.5 text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          >
-            🧭 Directions
+          <button onClick={onGetDirections} className="...">
+            <span className="flex items-center justify-center gap-1.5">
+              <Navigation size={14} /> Directions
+            </span>
           </button>
           <button
             onClick={onViewFull}
@@ -209,9 +220,11 @@ function PriceList({ storeId, userId, compact = false }) {
                 <p className="text-sm text-gray-700 dark:text-gray-200 truncate">
                   {item.name}
                 </p>
-                {stale && (
-                  <span className="text-xs text-orange-400 shrink-0">⚠️</span>
-                )}
+                <button onClick={onGetDirections} className="...">
+                  <span className="flex items-center justify-center gap-1.5">
+                    <Navigation size={14} /> Directions
+                  </span>
+                </button>
               </div>
               <p className="text-sm font-bold text-gray-800 dark:text-white shrink-0 ml-3">
                 ₱{parseFloat(item.price).toFixed(2)}

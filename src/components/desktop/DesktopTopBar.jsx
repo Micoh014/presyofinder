@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Navigation } from "lucide-react";
 import { supabase } from "../../services/supabase";
 import { useReverseGeocode } from "../../hooks/useReverseGeocode";
+import { Navigation, Sun, Moon } from "lucide-react";
 
 export default function DesktopTopBar({
   userPosition,
@@ -34,10 +34,11 @@ export default function DesktopTopBar({
         )}
       </div>
 
+      {/* + DROP PIN BUTTON */}
       <div className="flex items-center gap-3">
         <button
           onClick={onDropPin}
-          className="bg-green-500 hover:bg-green-600 text-white text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors"
+          className="bg-green-500 hover:bg-green-600 text-black text-sm font-semibold px-3 py-1 rounded-xs transition-colors"
         >
           + Drop Pin
         </button>
@@ -47,7 +48,7 @@ export default function DesktopTopBar({
           aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
           className="text-lg text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 p-1.5"
         >
-          {darkMode ? "☀️" : "🌙"}
+          {darkMode ? <Sun size={18} /> : <Moon size={18} />}
         </button>
 
         <div className="relative">

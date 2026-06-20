@@ -37,7 +37,7 @@ function FilterBar({ activeFilter, onFilterChange }) {
                 : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-200 shadow-lg"
             }`}
           >
-            <span>{f.icon}</span>
+            <f.Icon size={14} strokeWidth={2.25} />
             <span>{f.label}</span>
           </button>
         ))}

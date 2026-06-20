@@ -1,4 +1,11 @@
 import { memo, useState } from "react";
+import {
+  MoreHorizontal,
+  BarChart3,
+  ShoppingBasket,
+  Map,
+  ClipboardList,
+} from "lucide-react";
 
 function BottomBar({ onStats, onDropPin, onBasket, mode, onModeChange }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -12,9 +19,9 @@ function BottomBar({ onStats, onDropPin, onBasket, mode, onModeChange }) {
             onClick={() => setMenuOpen((v) => !v)}
             aria-label="More options"
             aria-expanded={menuOpen}
-            className="bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-lg border border-gray-100 dark:border-gray-700"
+            className="bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 w-12 h-12 rounded-full shadow-lg flex items-center justify-center border border-gray-100 dark:border-gray-700"
           >
-            ⋯
+            <MoreHorizontal size={20} />
           </button>
 
           {menuOpen && (
@@ -26,7 +33,7 @@ function BottomBar({ onStats, onDropPin, onBasket, mode, onModeChange }) {
                 }}
                 className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-left"
               >
-                📊 <span>Dashboard</span>
+                <BarChart3 size={16} /> <span>Dashboard</span>
               </button>
               <button
                 onClick={() => {
@@ -35,7 +42,7 @@ function BottomBar({ onStats, onDropPin, onBasket, mode, onModeChange }) {
                 }}
                 className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-left border-t border-gray-100 dark:border-gray-700"
               >
-                🧺 <span>Basket Finder</span>
+                <ShoppingBasket size={16} /> <span>Basket Finder</span>
               </button>
             </div>
           )}
@@ -46,24 +53,24 @@ function BottomBar({ onStats, onDropPin, onBasket, mode, onModeChange }) {
           <button
             onClick={() => onModeChange("browse")}
             aria-pressed={mode === "browse"}
-            className={`flex-1 px-4 py-2.5 rounded-full text-sm font-semibold transition-all ${
+            className={`flex-1 px-4 py-2.5 rounded-full text-sm font-semibold transition-all flex items-center justify-center gap-1.5 ${
               mode === "browse"
                 ? "bg-green-500 text-white shadow-sm"
                 : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
             }`}
           >
-            🗺 Browse
+            <Map size={15} /> Browse
           </button>
           <button
             onClick={() => onModeChange("log")}
             aria-pressed={mode === "log"}
-            className={`flex-1 px-4 py-2.5 rounded-full text-sm font-semibold transition-all ${
+            className={`flex-1 px-4 py-2.5 rounded-full text-sm font-semibold transition-all flex items-center justify-center gap-1.5 ${
               mode === "log"
                 ? "bg-green-500 text-white shadow-sm"
                 : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
             }`}
           >
-            📝 Log
+            <ClipboardList size={15} /> Log
           </button>
         </div>
 

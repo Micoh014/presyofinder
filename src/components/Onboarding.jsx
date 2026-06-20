@@ -1,20 +1,21 @@
 import { useState } from "react";
+import { MapPin, Receipt, Search } from "lucide-react";
 
 const SLIDES = [
   {
-    icon: "📍",
+    Icon: MapPin,
     title: "Drop Pins Anywhere",
     description:
       'Tap anywhere on the map or use "+ Drop Pin" to mark a store, sari-sari, palengke, or any place you shop.',
   },
   {
-    icon: "🧾",
+    Icon: Receipt,
     title: "Log Prices & Scan Receipts",
     description:
       "Add items and prices manually, or scan a receipt photo to auto-fill items.",
   },
   {
-    icon: "🔍",
+    Icon: Search,
     title: "Search & Compare",
     description:
       "Search any item to see where it's cheapest, sort by price or distance, and find the best deals near you.",
@@ -36,7 +37,7 @@ export default function Onboarding({ onDone }) {
 
   return (
     <div className="fixed inset-0 bg-white dark:bg-gray-900 flex flex-col items-center justify-center px-8 z-9999">
-      <div className="text-6xl mb-6">{slide.icon}</div>
+      <slide.Icon size={64} className="text-green-500 mb-6" strokeWidth={1.5} />
       <h2 className="text-xl font-bold text-gray-800 dark:text-white text-center mb-2">
         {slide.title}
       </h2>

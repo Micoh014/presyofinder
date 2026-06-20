@@ -2,6 +2,7 @@ import { useState } from "react";
 import { supabase } from "../services/supabase";
 import Button from "./ui/Button";
 import Input from "./ui/Input";
+import { MapPin } from "lucide-react";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -52,7 +53,7 @@ export default function Login() {
 
   return (
     <div className="fixed inset-0 bg-white dark:bg-gray-900 flex flex-col items-center justify-center px-6">
-      <div className="text-5xl mb-2">📍</div>
+      <MapPin size={48} className="text-green-500 mb-2" strokeWidth={1.75} />
       <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
         PresyoFinder
       </h1>

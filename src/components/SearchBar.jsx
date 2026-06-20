@@ -1,6 +1,7 @@
 import { useState, memo } from "react";
 import { searchItemsByName } from "../services/db";
 import Spinner from "./ui/Spinner";
+import { Search, Navigation } from "lucide-react";
 
 function SearchBar({
   onResults,
@@ -64,7 +65,7 @@ function SearchBar({
       ? "↑ Price"
       : sortMode === "price-desc"
         ? "↓ Price"
-        : "📍 Near";
+        : "Near";
 
   return (
     <div className="flex gap-2 items-center" style={{ width: "100%" }}>
@@ -73,7 +74,7 @@ function SearchBar({
           Search for an item
         </label>
         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-          🔍
+          <Search size={16} />
         </div>
         <input
           id="item-search"
@@ -111,6 +112,7 @@ function SearchBar({
           className="bg-white dark:bg-gray-800 shadow-lg rounded-2xl px-4 py-3.5 text-xs font-semibold text-gray-600 dark:text-gray-300 hover:text-green-500 transition-colors whitespace-nowrap"
           style={{ flexShrink: 0 }}
         >
+          {sortMode === "distance" && <Navigation size={12} />}
           {sortLabel}
         </button>
       )}

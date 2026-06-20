@@ -1,4 +1,5 @@
 import { useOnlineStatus } from "../hooks/useOnlineStatus";
+import { WifiOff } from "lucide-react";
 
 export default function OfflineBanner() {
   const isOnline = useOnlineStatus();
@@ -8,9 +9,10 @@ export default function OfflineBanner() {
     <div
       role="alert"
       aria-live="assertive"
-      className="fixed top-0 left-0 right-0 z-9999 bg-yellow-400 text-yellow-900 text-sm font-medium text-center py-2 px-4 safe-top"
+      className="... flex items-center justify-center gap-2"
     >
-      ⚠️ You're offline — changes won't be saved until you reconnect.
+      <WifiOff size={14} />
+      You're offline — changes won't be saved until you reconnect.
     </div>
   );
 }

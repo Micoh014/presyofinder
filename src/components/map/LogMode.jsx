@@ -1,19 +1,11 @@
 import { useMemo, useState } from "react";
-import { getDistanceMeters } from "../../services/mapUtils";
 import Spinner from "../ui/Spinner";
 import { motion } from "framer-motion";
+import { Search, MapPin } from "lucide-react";
+import { STORE_TYPE_ICONS } from "../../services/mapUtils";
+import { getDistanceMeters, STORE_TYPE_FILTERS } from "../../services/mapUtils";
 
 const NEARBY_RADIUS_METERS = 150;
-
-const STORE_ICONS = {
-  "sari-sari": "🏪",
-  karinderia: "🍚",
-  palengke: "🥬",
-  mall: "🏬",
-  supermarket: "🛒",
-  "street-vendor": "🛵",
-  online: "📦",
-};
 
 export default function LogMode({
   stores,
@@ -80,8 +72,8 @@ export default function LogMode({
       {/* Search bar — always visible */}
       <div className="px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
         <div className="relative">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-sm">
-            🔍
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+            <Search size={15} />
           </div>
           <input
             type="text"
@@ -119,7 +111,11 @@ export default function LogMode({
           <div>
             {searchResults.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-2xl mb-2">🔍</p>
+                <Search
+                  size={28}
+                  className="mx-auto mb-2 text-gray-300 dark:text-gray-600"
+                  strokeWidth={1.5}
+                />
                 <p className="text-sm text-gray-400 dark:text-gray-500">
                   No stores found for "{search}"
                 </p>
@@ -163,7 +159,11 @@ export default function LogMode({
         {!isLoading && !search.trim() && nearbyStores.length === 0 && (
           <div>
             <div className="px-4 pt-6 pb-4 text-center">
-              <p className="text-3xl mb-2">📍</p>
+              <MapPin
+                size={32}
+                className="mx-auto mb-2 text-gray-300 dark:text-gray-600"
+                strokeWidth={1.5}
+              />
               <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
                 No stores within 150m
               </p>
@@ -211,8 +211,17 @@ function StoreRow({ store, distance, formatDistance, onSelect }) {
       className="w-full flex items-center justify-between px-4 py-4 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left"
     >
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-700 flex items-center justify-center text-xl shrink-0">
-          {STORE_ICONS[store.type] || "📍"}
+        <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-700 flex items-center justify-center shrink-0">
+          {(() => {
+            const Icon = STORE_TYPE_ICONS[store.type] || MapPin;
+            return (
+              <Icon
+                size={20}
+                className="text-gray-600 dark:text-gray-300"
+                strokeWidth={1.75}
+              />
+            );
+          })()}
         </div>
         <div>
           <p className="font-semibold text-sm text-gray-800 dark:text-white">

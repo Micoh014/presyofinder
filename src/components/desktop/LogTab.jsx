@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { getDistanceMeters } from "../../services/mapUtils";
 import Spinner from "../ui/Spinner";
+import { Camera, Info } from "lucide-react";
 
 const STORE_TYPE_COLORS = {
   "sari-sari": "bg-red-400",
@@ -155,14 +156,14 @@ export default function LogTab({
               className="w-full bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl pl-7 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 placeholder-gray-400 dark:placeholder-gray-500"
             />
           </div>
-          <button className="shrink-0 flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700">
-            📷 Photo
+          <button className="... flex items-center gap-1.5">
+            <Camera size={14} /> Photo
           </button>
         </div>
 
         {!selectedId && (
-          <p className="text-xs text-gray-400 dark:text-gray-500">
-            ⓘ Select a store above to log a price.
+          <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1">
+            <Info size={12} /> Select a store above to log a price.
           </p>
         )}
       </div>

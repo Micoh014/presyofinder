@@ -1,4 +1,14 @@
 import L from 'leaflet'
+import {
+  MapPin,
+  Store,
+  Utensils,
+  Carrot,
+  Building2,
+  ShoppingCart,
+  Bike,
+  Package,
+} from 'lucide-react'
 
 export function getDistanceMeters(lat1, lon1, lat2, lon2) {
   const R = 6371000
@@ -71,12 +81,24 @@ export function createColoredIcon(color) {
 }
 
 export const STORE_TYPE_FILTERS = [
-  { value: 'all', label: 'All', icon: '📍' },
-  { value: 'sari-sari', label: 'Sari-sari', icon: '🏪' },
-  { value: 'karinderia', label: 'Karinderia', icon: '🍚' },
-  { value: 'palengke', label: 'Palengke', icon: '🥬' },
-  { value: 'mall', label: 'Mall', icon: '🏬' },
-  { value: 'supermarket', label: 'Supermarket', icon: '🛒' },
-  { value: 'street-vendor', label: 'Street Vendor', icon: '🛵' },
-  { value: 'online', label: 'Online', icon: '📦' },
+  { value: 'all', label: 'All', Icon: MapPin },
+  { value: 'sari-sari', label: 'Sari-sari', Icon: Store },
+  { value: 'karinderia', label: 'Karinderia', Icon: Utensils },
+  { value: 'palengke', label: 'Palengke', Icon: Carrot },
+  { value: 'mall', label: 'Mall', Icon: Building2 },
+  { value: 'supermarket', label: 'Supermarket', Icon: ShoppingCart },
+  { value: 'street-vendor', label: 'Street Vendor', Icon: Bike },
+  { value: 'online', label: 'Online', Icon: Package },
 ]
+
+// Shared store-type → icon lookup, used wherever a store's type icon
+// needs to be displayed (price cards, panels, lists)
+export const STORE_TYPE_ICONS = {
+  'sari-sari': Store,
+  karinderia: Utensils,
+  palengke: Carrot,
+  mall: Building2,
+  supermarket: ShoppingCart,
+  'street-vendor': Bike,
+  online: Package,
+}
