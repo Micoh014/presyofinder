@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Navigation } from "lucide-react";
 import { supabase } from "../../services/supabase";
 import { useReverseGeocode } from "../../hooks/useReverseGeocode";
 
@@ -16,7 +17,7 @@ export default function DesktopTopBar({
   return (
     <div className="flex items-center justify-between px-4 py-2.5 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
       <div className="flex items-center gap-2 text-sm">
-        <span className="text-green-500">🧭</span>
+        <Navigation size={14} strokeWidth={2.5} className="text-green-500" />
         {location ? (
           <>
             <span className="font-semibold text-gray-800 dark:text-white">
