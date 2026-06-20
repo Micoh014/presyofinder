@@ -1,28 +1,35 @@
 import { useState, useRef, useCallback } from "react";
+import { User, CirclePlus, ShoppingBasket } from "lucide-react";
 import {
   MapContainer,
   TileLayer,
+  Circle,
   Marker,
   Popup,
   ZoomControl,
 } from "react-leaflet";
+import { latLng } from "leaflet";
+
+import SearchTab from "./SearchTab";
+import StorePanelDesktop from "./StorePanelDesktop";
+import LogTab from "./LogTab";
+import DesktopTopBar from "./DesktopTopBar";
+
+import AddStoreModal from "../AddStoreModal";
+import ConfirmDialog from "../ConfirmDialog";
+import BasketPanel from "../BasketPanel";
+import StorePriceCard from "../StorePriceCard";
+
+import { useItems } from "../../hooks/useItems";
 import { useStores } from "../../hooks/useStores";
 import { useAllItems } from "../../hooks/useAllItems";
 import { useStoreTiers } from "../../hooks/useStoreTiers";
 import { useLocation } from "../../hooks/useLocation";
-import { createColoredIcon } from "../../services/mapUtils";
-import SearchTab from "./SearchTab";
-import LogTab from "./LogTab";
-import StorePanelDesktop from "./StorePanelDesktop";
-import AddStoreModal from "../AddStoreModal";
 import { useConfirmDialog } from "../../hooks/useConfirmDialog";
-import ConfirmDialog from "../ConfirmDialog";
+
+import { createColoredIcon } from "../../services/mapUtils";
+
 import LocationMarker from "../map/LocationMarker";
-import { latLng } from "leaflet";
-import BasketPanel from "../BasketPanel";
-import StorePriceCard from "../StorePriceCard";
-import DesktopTopBar from "./DesktopTopBar";
-import { useItems } from "../../hooks/useItems";
 
 const TIER_COLORS = {
   cheap: "#22c55e",
@@ -93,132 +100,124 @@ export default function DesktopLayout({
     <div
       style={{
         display: "flex",
-        flexDirection: "column",
         height: "100%",
         width: "100%",
       }}
     >
-      <DesktopTopBar
-        userPosition={userPosition}
-        onDropPin={handleDropPin}
-        darkMode={darkMode}
-        toggleDarkMode={toggleDarkMode}
-        userEmail={userEmail}
-      />
       <div
         style={{
+          width: 300,
+          flexShrink: 0,
           display: "flex",
-          flex: 1,
-          minHeight: 0,
+          flexDirection: "column",
+          borderRight: "1px solid var (--color-border, #e5e7eb)",
         }}
+        className="bg-white dark:bg-gray-900"
       >
-        <div
-          style={{
-            width: 300,
-            flexShrink: 0,
-            display: "flex",
-            flexDirection: "column",
-            borderRight: "1px solid var (--color-border, #e5e7eb)",
-          }}
-          className="bg-white dark:bg-gray-900"
-        >
-          <div className="px-4 pt-4 pb-3 flex items-center gap-2.5 border-b border-gray-100 dark:border-gray-800">
-            <div className="w-8 h-8 bg-green-500 rounded-xl flex items-center justify-center shadow-sm shadow-green-200">
-              <span className="text-white text-sm">📍</span>
-            </div>
-            <div>
-              <h1 className="text-sm font-bold text-gray-900 dark:text-white leading-none tracking-tight">
-                PresyoFinder
-              </h1>
-              <p className="text-xs text-gray-400 dark:text-gray-500 leading-none mt-0.5">
-                Track prices. Find deals.
+        <div className="px-4 pt-4 pb-3 flex items-center gap-2.5 border-b border-gray-100 dark:border-gray-800">
+          <div className="w-8 h-8 bg-green-500 rounded-xl flex items-center justify-center shadow-sm shadow-green-200">
+            <span className="text-white text-sm">📍</span>
+          </div>
+          <div>
+            <h1 className="text-sm font-bold text-gray-900 dark:text-white leading-none tracking-tight">
+              PresyoFinder
+            </h1>
+            <p className="text-xs text-gray-400 dark:text-gray-500 leading-none mt-0.5">
+              Track prices. Find deals.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex gap-0 bg-gray-100 dark:bg-gray-800 rounded-full p-1">
+          {[
+            { key: "search", Icon: User, label: "Browse" },
+            { key: "log", Icon: CirclePlus, label: "Log" },
+            {
+              key: "basket",
+              Icon: ShoppingBasket,
+              label: "Basket",
+              badge: basketCount,
+            },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-full text-sm font-semibold transition-colors ${
+                activeTab === tab.key
+                  ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
+                  : "text-gray-500 dark:text-gray-400"
+              }`}
+            >
+              <tab.Icon size={15} strokeWidth={2.25} />
+              <span>{tab.label}</span>
+              {tab.badge > 0 && (
+                <span className="bg-green-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {tab.badge}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4">
+          {activeTab === "search" && (
+            <SearchTab
+              userId={userId}
+              userPosition={userPosition}
+              radiusMeters={radiusMeters}
+              onSelectStore={(store) => {
+                setSelectedStore(store);
+                if (mapRef.current) {
+                  mapRef.current.flyTo([store.latitude, store.longitude], 16);
+                }
+              }}
+            />
+          )}
+
+          {activeTab === "log" && (
+            <LogTab
+              stores={stores}
+              storesLoading={storesLoading}
+              userPosition={userPosition}
+              radiusMeters={radiusMeters}
+              onSelectStore={(store) => {
+                setLogStoreId(store.id);
+                if (mapRef.current) {
+                  mapRef.current.flyTo([store.latitude, store.longitude], 16);
+                }
+              }}
+              onSubmitItem={async (name, price) => {
+                const ok = await addLogItem(name, price);
+                return ok;
+              }}
+              onDropPin={handleDropPin}
+            />
+          )}
+
+          {activeTab === "basket" && (
+            <BasketPanel
+              userId={userId}
+              onSelectStore={(store) => {
+                setSelectedStore(store);
+                if (mapRef.current) {
+                  mapRef.current.flyTo([store.latitude, store.longitude], 16);
+                }
+              }}
+              onItemsChange={setBasketCount}
+            />
+          )}
+        </div>
+
+        {activeTab === "search" && (
+          <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-800">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                Search radius
+              </p>
+              <p className="text-sm font-bold text-gray-900 dark:text-white">
+                {(radiusMeters / 1000).toFixed(1)} km
               </p>
             </div>
-          </div>
-
-          <div className="flex border-b border-gray-100 dark:border-gray-800">
-            {[
-              { key: "search", icon: "🔍", label: "Search" },
-              { key: "log", icon: "📝", label: "Log" },
-              {
-                key: "basket",
-                icon: "🧺",
-                label: "Basket",
-                badge: basketCount,
-              },
-            ].map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-sm font-semibold border-b-2 transition-colors ${
-                  activeTab === tab.key
-                    ? "border-green-500 text-green-600 dark:text-green-400"
-                    : "border-transparent text-gray-500 dark:text-gray-400"
-                }`}
-              >
-                <span>{tab.icon}</span>
-                <span>{tab.label}</span>
-                {tab.badge > 0 && (
-                  <span className="bg-green-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                    {tab.badge}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-4">
-            {activeTab === "search" && (
-              <SearchTab
-                userId={userId}
-                userPosition={userPosition}
-                onSelectStore={(store) => {
-                  setSelectedStore(store);
-                  if (mapRef.current) {
-                    mapRef.current.flyTo([store.latitude, store.longitude], 16);
-                  }
-                }}
-              />
-            )}
-
-            {activeTab === "log" && (
-              <LogTab
-                stores={stores}
-                storesLoading={storesLoading}
-                userPosition={userPosition}
-                radiusMeters={radiusMeters}
-                onSelectStore={(store) => {
-                  setLogStoreId(store.id);
-                  if (mapRef.current) {
-                    mapRef.current.flyTo([store.latitude, store.longitude], 16);
-                  }
-                }}
-                onSubmitItem={async (name, price) => {
-                  const ok = await addLogItem(name, price);
-                  return ok;
-                }}
-                onDropPin={handleDropPin}
-              />
-            )}
-
-            {activeTab === "basket" && (
-              <BasketPanel
-                userId={userId}
-                onSelectStore={(store) => {
-                  setSelectedStore(store);
-                  if (mapRef.current) {
-                    mapRef.current.flyTo([store.latitude, store.longitude], 16);
-                  }
-                }}
-                onItemsChange={setBasketCount}
-              />
-            )}
-          </div>
-
-          <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-800">
-            <label className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide block mb-2">
-              Search radius — {(radiusMeters / 1000).toFixed(1)}km
-            </label>
             <input
               type="range"
               min="500"
@@ -229,8 +228,24 @@ export default function DesktopLayout({
               className="w-full accent-green-500"
             />
           </div>
-        </div>
+        )}
+      </div>
 
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          minHeight: 0,
+        }}
+      >
+        <DesktopTopBar
+          userPosition={userPosition}
+          onDropPin={handleDropPin}
+          darkMode={darkMode}
+          toggleDarkMode={toggleDarkMode}
+          userEmail={userEmail}
+        />
         <div style={{ flex: 1, position: "relative" }}>
           <MapContainer
             center={[14.5995, 120.9842]}
@@ -249,6 +264,20 @@ export default function DesktopLayout({
               onLocationFound={handleLocationFound}
               onLocationError={onLocationError}
             />
+            {userPosition && (
+              <Circle
+                center={[userPosition.lat, userPosition.lng]}
+                radius={radiusMeters}
+                pathOptions={{
+                  color: darkMode ? "#4ade80" : "#15803d",
+                  weight: 2.5,
+                  opacity: 0.9,
+                  dashArray: "8 6",
+                  fillColor: "#22c55e",
+                  fillOpacity: darkMode ? 0.06 : 0.1,
+                }}
+              />
+            )}
             {storesInRadius.map((store) => (
               <Marker
                 key={store.id}

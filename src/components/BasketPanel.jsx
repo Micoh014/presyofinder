@@ -1,5 +1,6 @@
 import { supabase } from "../services/supabase";
 import Spinner from "./ui/Spinner";
+import { ShoppingBasket } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
 export default function BasketPanel({ onSelectStore, onItemsChange, userId }) {
@@ -157,40 +158,53 @@ export default function BasketPanel({ onSelectStore, onItemsChange, userId }) {
 
       <div className="flex-1 overflow-y-auto -mx-4 px-4 space-y-2 min-h-0">
         {basketItems.length === 0 && (
-          <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-6">
-            Add items to find the cheapest store nearby.
-          </p>
+          <div className="flex flex-col items-center justify-center text-center h-full px-6">
+            <ShoppingBasket
+              size={40}
+              strokeWidth={1.5}
+              className="text-gray-300 dark:text-gray-600 mb-3"
+            />
+            <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
+              Your basket is empty
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+              Add grocery items to compare the best nearby prices.
+            </p>
+          </div>
         )}
+
         {basketItems.map((name) => {
           const result = itemResults.find((r) => r.name === name);
           const cheapest = result?.cheapest;
           return (
             <div
               key={name}
-              className="rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden"
+              className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm p-3"
             >
-              <div className="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-gray-800/60">
+              <div className="flex items-center justify-between mb-2">
                 <p className="text-sm font-semibold text-gray-800 dark:text-white">
                   {name}
                 </p>
                 <button
                   onClick={() => removeItem(name)}
-                  className="text-gray-400 hover:text-red-400 text-lg leading-none"
+                  className="text-gray-300 dark:text-gray-600 hover:text-red-400 text-base leading-none"
                 >
                   ×
                 </button>
               </div>
               {cheapest ? (
-                <div className="flex items-center justify-between px-3 py-2 bg-white dark:bg-gray-900">
+                <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-green-50 dark:bg-green-900/20">
                   <div className="flex items-center gap-1.5 min-w-0">
-                    <span className="text-green-500 text-xs">📍</span>
+                    <span className="text-green-600 dark:text-green-400 text-xs">
+                      🏆
+                    </span>
                     <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                       {cheapest.stores?.name}
                       {cheapest.stores?.distance !== undefined &&
                         ` · ${cheapest.stores.distance < 1000 ? Math.round(cheapest.stores.distance) + "m" : (cheapest.stores.distance / 1000).toFixed(1) + "km"}`}
                     </p>
                   </div>
-                  <p className="text-xs font-bold text-green-500 shrink-0 ml-2">
+                  <p className="text-sm font-bold text-green-600 dark:text-green-400 shrink-0 ml-2">
                     ₱{parseFloat(cheapest.price).toFixed(2)}
                   </p>
                 </div>
@@ -211,26 +225,26 @@ export default function BasketPanel({ onSelectStore, onItemsChange, userId }) {
       {bestStore && (
         <div
           onClick={() => onSelectStore(bestStore.store)}
-          className="mt-3 shrink-0 bg-gray-900 dark:bg-gray-950 rounded-xl px-4 py-3 cursor-pointer hover:bg-gray-800 dark:hover:bg-gray-900 transition-colors"
+          className="mt-3 shrink-0 bg-green-50 dark:bg-green-900/20 rounded-2xl px-4 py-3 cursor-pointer hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
         >
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-[10px] font-bold text-green-600 dark:text-green-400 uppercase tracking-widest">
+              Best One-Stop Shop
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {bestStore.count}/{basketItems.length} items
+            </p>
+          </div>
+          <p className="text-sm font-bold text-gray-800 dark:text-white truncate mb-2">
+            {bestStore.store?.name}
+          </p>
           <div className="flex items-center justify-between">
-            <div className="min-w-0">
-              <p className="text-[10px] font-bold text-green-400 uppercase tracking-widest mb-0.5">
-                Best One-Stop Shop
-              </p>
-              <p className="text-sm font-bold text-white truncate">
-                {bestStore.store?.name}
-              </p>
-              <p className="text-xs text-gray-400">Cheapest possible total</p>
-            </div>
-            <div className="text-right shrink-0 ml-3">
-              <p className="text-xs text-gray-400 mb-0.5">
-                {bestStore.count}/{basketItems.length} items
-              </p>
-              <p className="text-lg font-bold text-white">
-                ₱{bestStore.total.toFixed(2)}
-              </p>
-            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Cheapest possible total
+            </p>
+            <p className="text-lg font-bold text-gray-900 dark:text-white">
+              ₱{bestStore.total.toFixed(2)}
+            </p>
           </div>
         </div>
       )}

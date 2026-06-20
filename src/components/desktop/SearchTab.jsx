@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Search, ListFilter, Clock } from "lucide-react";
 import { searchItemsByName } from "../../services/db";
 import { STORE_TYPE_FILTERS, getDistanceMeters } from "../../services/mapUtils";
 
@@ -14,7 +15,12 @@ function formatTimeAgo(dateStr) {
   return `${diffMonths}mo ago`;
 }
 
-export default function SearchTab({ userId, userPosition, onSelectStore }) {
+export default function SearchTab({
+  userId,
+  userPosition,
+  radiusMeters,
+  onSelectStore,
+}) {
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
   const [results, setResults] = useState([]);
@@ -51,18 +57,26 @@ export default function SearchTab({ userId, userPosition, onSelectStore }) {
   return (
     <div className="flex flex-col h-full">
       <div className="relative mb-3">
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none">
-          🔍
-        </div>
+        <Search
+          size={16}
+          strokeWidth={2}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+        />
         <input
           type="text"
           value={query}
           onChange={(e) => handleSearch(e.target.value)}
-          placeholder="What are you looking for?"
-          className="w-full bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl pl-9 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 placeholder-gray-400 dark:placeholder-gray-500"
+          placeholder="Search items or stores..."
+          className="w-full bg-white dark:bg-gray-800 dark:text-white border border-gray-200 dark:border-gray-700 rounded-full pl-9 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 placeholder-gray-400 dark:placeholder-gray-500"
         />
       </div>
 
+      <div className="flex items-center gap-1.5 mb-2">
+        <ListFilter size={13} strokeWidth={2.25} className="text-gray-400" />
+        <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+          Categories
+        </p>
+      </div>
       <div className="flex flex-wrap gap-1.5 mb-4 items-center">
         {STORE_TYPE_FILTERS.filter((f) => f.value !== "all").map((f) => (
           <button
@@ -70,9 +84,9 @@ export default function SearchTab({ userId, userPosition, onSelectStore }) {
             onClick={() =>
               setActiveFilter(activeFilter === f.value ? "all" : f.value)
             }
-            className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${
+            className={`px-2.5 py-1 rounded-full text-xs font-semibold border-2 transition-colors ${
               activeFilter === f.value
-                ? "bg-green-500 text-white border-green-500"
+                ? "bg-white dark:bg-gray-800 text-green-600 dark:text-green-400 border-green-500"
                 : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700"
             }`}
           >
@@ -101,10 +115,16 @@ export default function SearchTab({ userId, userPosition, onSelectStore }) {
         )}
 
         {!loading && query.trim() && filteredResults.length > 0 && (
-          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2 px-4">
-            {filteredResults.length} store
-            {filteredResults.length !== 1 ? "s" : ""} found · Sorted by price
-          </p>
+          <div className="flex items-center justify-between mb-2 px-4">
+            <p className="text-xs font-semibold text-green-600 dark:text-green-400">
+              {filteredResults.length} store
+              {filteredResults.length !== 1 ? "s" : ""}
+              {radiusMeters && ` within ${(radiusMeters / 1000).toFixed(1)} km`}
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500">
+              Sorted by price
+            </p>
+          </div>
         )}
 
         {!loading &&
@@ -133,13 +153,13 @@ export default function SearchTab({ userId, userPosition, onSelectStore }) {
                     className={`w-2 h-2 rounded-full shrink-0 ${getTierColor(item.price)}`}
                   />
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-gray-800 dark:text-white truncate">
+                    <p className="text-sm font-bold text-gray-800 dark:text-white truncate">
                       {item.stores?.name}
                     </p>
                     <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
-                      {item.name}
                       {dist !== null &&
-                        ` · ${dist < 1000 ? Math.round(dist) + "m" : (dist / 1000).toFixed(1) + "km"}`}
+                        `${dist < 1000 ? Math.round(dist) + "m" : (dist / 1000).toFixed(1) + "km"} · `}
+                      {item.name}
                     </p>
                   </div>
                 </div>
@@ -156,7 +176,8 @@ export default function SearchTab({ userId, userPosition, onSelectStore }) {
                     ₱{parseFloat(item.price).toFixed(2)}
                   </p>
                   {item.recorded_at && (
-                    <p className="text-xs text-gray-400 dark:text-gray-500">
+                    <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center justify-end gap-1">
+                      <Clock size={11} strokeWidth={2} />
                       {formatTimeAgo(item.recorded_at)}
                     </p>
                   )}

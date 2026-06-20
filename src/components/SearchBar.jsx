@@ -79,7 +79,7 @@ function SearchBar({
           id="item-search"
           style={{ width: "100%" }}
           className="bg-white dark:bg-gray-800 dark:text-white shadow-xl rounded-2xl pl-11 pr-10 py-4 focus:outline-none focus:ring-2 focus:ring-green-400 text-gray-800 dark:placeholder-gray-500 placeholder-gray-400 text-sm font-medium border border-gray-100 dark:border-gray-700"
-          placeholder="What are you looking for?"
+          placeholder="What are you looking for"
           aria-label="Search for an item"
           value={query}
           onChange={(e) => handleSearch(e.target.value)}
