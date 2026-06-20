@@ -4,7 +4,6 @@ import { useFrequentItems } from "../../hooks/useFrequentItems";
 import ItemForm from "../storeDetail/ItemForm";
 import ItemList from "../storeDetail/ItemList";
 import Spinner from "../ui/Spinner";
-import EmptyState from "../ui/EmptyState";
 import ReceiptScanner from "../ReceiptScanner";
 
 const STORE_ICONS = {
@@ -91,10 +90,6 @@ export default function StorePanelDesktop({
           <div className="bg-red-50 dark:bg-red-900/30 rounded-xl px-4 py-3 text-sm text-red-500 dark:text-red-400">
             {itemsError}
           </div>
-        )}
-
-        {!itemsLoading && !itemsError && items.length === 0 && (
-          <EmptyState description="No items yet — add one above." />
         )}
 
         <ItemList items={items} onUpdate={updateItem} onDelete={deleteItem} />

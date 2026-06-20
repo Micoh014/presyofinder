@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback } from "react";
-import { User, CirclePlus, ShoppingBasket } from "lucide-react";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { User, CirclePlus, ShoppingBasket, LocateFixed } from "lucide-react";
 import {
   MapContainer,
   TileLayer,
@@ -28,6 +28,7 @@ import { useLocation } from "../../hooks/useLocation";
 import { useConfirmDialog } from "../../hooks/useConfirmDialog";
 
 import { createColoredIcon } from "../../services/mapUtils";
+import { getDistanceMeters } from "../../services/mapUtils";
 
 import LocationMarker from "../map/LocationMarker";
 
@@ -50,6 +51,7 @@ export default function DesktopLayout({
   const mapRef = useRef(null);
   const hasCenteredRef = useRef(false);
   const { userPosition, onLocationFound, onLocationError } = useLocation();
+  const [cardPosition, setCardPosition] = useState(null);
   const {
     stores,
     storesLoading,
@@ -84,8 +86,8 @@ export default function DesktopLayout({
     [onLocationFound],
   );
   const tileUrl = darkMode
-    ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-    : "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+    ? "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
+    : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 
   const handlePinClick = useCallback((store) => {
     setPreviewStore(store);
@@ -95,6 +97,28 @@ export default function DesktopLayout({
     setPinPosition(userPosition);
     setShowAddStoreModal(true);
   }, [userPosition]);
+
+  useEffect(() => {
+    if (!previewStore || !mapRef.current) {
+      setCardPosition(null);
+      return;
+    }
+    const map = mapRef.current;
+    function updatePosition() {
+      const point = map.latLngToContainerPoint([
+        previewStore.latitude,
+        previewStore.longitude,
+      ]);
+      setCardPosition({ x: point.x, y: point.y });
+    }
+    updatePosition();
+    map.on("move", updatePosition);
+    map.on("zoom", updatePosition);
+    return () => {
+      map.off("move", updatePosition);
+      map.off("zoom", updatePosition);
+    };
+  }, [previewStore]);
 
   return (
     <div
@@ -251,11 +275,13 @@ export default function DesktopLayout({
             center={[14.5995, 120.9842]}
             zoom={13}
             style={{ width: "100%", height: "100%" }}
+            className={darkMode ? "map-dark-mode" : ""}
             ref={mapRef}
             zoomControl={false}
           >
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+              key={darkMode ? "dark" : "light"}
+              attribution='&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
               url={tileUrl}
             />
             <ZoomControl position="bottomright" />
@@ -288,20 +314,39 @@ export default function DesktopLayout({
             ))}
           </MapContainer>
 
-          {previewStore && !selectedStore && (
+          <button
+            onClick={() => {
+              if (!userPosition || !mapRef.current) return;
+              mapRef.current.flyTo([userPosition.lat, userPosition.lng], 16);
+            }}
+            aria-label="Recenter map to my location"
+            disabled={!userPosition}
+            className="absolute bottom-24 right-2.5 z-700 bg-white dark:bg-gray-800 text-white-500 dark:text-blue-400 w-9 h-9 rounded-md shadow-md flex items-center justify-center disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-700"
+          >
+            <LocateFixed size={18} />
+          </button>
+
+          {previewStore && !selectedStore && cardPosition && (
             <StorePriceCard
               store={previewStore}
               userId={userId}
+              variant="popover"
+              position={cardPosition}
+              tierColor={TIER_COLORS[previewStore.tier]}
+              distanceMeters={
+                userPosition
+                  ? getDistanceMeters(
+                      userPosition.lat,
+                      userPosition.lng,
+                      previewStore.latitude,
+                      previewStore.longitude,
+                    )
+                  : null
+              }
               onClose={() => setPreviewStore(null)}
-              onViewFull={() => {
+              onLogPrice={() => {
                 setSelectedStore(previewStore);
                 setPreviewStore(null);
-              }}
-              onGetDirections={() => {
-                window.open(
-                  `https://www.google.com/maps/dir/?api=1&destination=${previewStore.latitude},${previewStore.longitude}`,
-                  "_blank",
-                );
               }}
             />
           )}

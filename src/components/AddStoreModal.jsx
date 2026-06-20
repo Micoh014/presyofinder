@@ -4,15 +4,26 @@ import { showToast } from "../services/toast";
 import Modal from "./ui/Modal";
 import Button from "./ui/Button";
 import Input from "./ui/Input";
+import {
+  MapPin,
+  Camera,
+  Store,
+  Utensils,
+  Carrot,
+  Building2,
+  ShoppingCart,
+  Bike,
+  Package,
+} from "lucide-react";
 
 const STORE_TYPES = [
-  { value: "sari-sari", label: "🏪 Sari-sari Store" },
-  { value: "karinderia", label: "🍚 Karinderia" },
-  { value: "palengke", label: "🥬 Palengke" },
-  { value: "mall", label: "🏬 Mall" },
-  { value: "supermarket", label: "🛒 Supermarket" },
-  { value: "street-vendor", label: "🛵 Street Vendor" },
-  { value: "online", label: "📦 Online Seller" },
+  { value: "sari-sari", label: "Sari-sari Store", Icon: Store },
+  { value: "karinderia", label: "Karinderia", Icon: Utensils },
+  { value: "palengke", label: "Palengke", Icon: Carrot },
+  { value: "mall", label: "Mall", Icon: Building2 },
+  { value: "supermarket", label: "Supermarket", Icon: ShoppingCart },
+  { value: "street-vendor", label: "Street Vendor", Icon: Bike },
+  { value: "online", label: "Online Seller", Icon: Package },
 ];
 
 export default function AddStoreModal({ position, onSave, onClose }) {
@@ -76,9 +87,10 @@ export default function AddStoreModal({ position, onSave, onClose }) {
       <div className="flex justify-between items-center">
         <h2
           id="add-store-title"
-          className="text-xl font-bold text-gray-800 dark:text-white"
+          className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2"
         >
-          📍 Add Store
+          <MapPin size={20} className="text-red-500" />
+          Add Store
         </h2>
         <Button
           variant="ghost"
@@ -110,7 +122,11 @@ export default function AddStoreModal({ position, onSave, onClose }) {
         </div>
       ) : (
         <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl cursor-pointer hover:border-green-400 transition-colors">
-          <span className="text-3xl mb-1">📷</span>
+          <Camera
+            size={28}
+            className="mb-1 text-gray-400 dark:text-gray-500"
+            strokeWidth={1.5}
+          />
           <span className="text-sm text-gray-500 dark:text-gray-400">
             Tap to add a store photo
           </span>
@@ -140,12 +156,13 @@ export default function AddStoreModal({ position, onSave, onClose }) {
             <button
               key={t.value}
               onClick={() => setType(t.value)}
-              className={`px-3 py-2 rounded-xl text-sm font-medium border transition-colors ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium border transition-colors ${
                 type === t.value
                   ? "bg-green-500 text-white border-green-500"
                   : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600"
               }`}
             >
+              <t.Icon size={16} strokeWidth={2} />
               {t.label}
             </button>
           ))}

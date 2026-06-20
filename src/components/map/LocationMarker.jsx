@@ -22,6 +22,13 @@ export default function LocationMarker({ onLocationFound, onLocationError }) {
         weight: 2,
         fillOpacity: 1,
       }).addTo(map);
+
+      // Re-centen the map of the user's location when the dot is clicked
+      markerRef.current.on("click", () => {
+        map.flyTo(e.latlng, Math.max(map.getZoom(), 16));
+      });
+      const el = markerRef.current.getElement?.();
+      if (el) el.style.cursor = "pointer";
     }
 
     function handleError(e) {

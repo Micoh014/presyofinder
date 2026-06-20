@@ -52,7 +52,7 @@ export default function ItemForm({ onAdd, onScanReceipt, frequentItems = [] }) {
               <button
                 key={name}
                 onClick={() => handleChipTap(name)}
-                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all whitespace-nowrap${
+                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all whitespace-nowrap ${
                   itemName === name
                     ? "bg-green-500 text-white border-green-500"
                     : "bg-white dark:bg-gray-600 text-gray-600 dark:text-gray-200 border-gray-200 dark:border-gray-500 hover:border-green-400 hover:text-green-600"

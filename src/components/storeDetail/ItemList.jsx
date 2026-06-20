@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ShoppingCart } from "lucide-react";
 
 const FRESHNESS_DAYS = 30;
 
@@ -30,7 +31,7 @@ export default function ItemList({ items, onUpdate, onDelete }) {
 
       {items.length === 0 && (
         <div className="text-center py-8 text-gray-400 dark:text-gray-500">
-          <p className="text-3xl mb-2">🛒</p>
+          <ShoppingCart className="mx-auto mb-2" size={28} strokeWidth={1.5} />
           <p className="text-sm">No items yet. Add one above.</p>
         </div>
       )}
